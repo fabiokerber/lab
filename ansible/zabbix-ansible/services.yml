@@ -16,7 +16,7 @@
       - zabbix-agent
       - httpd
       - rh-php72-php-fpm
-      - mysqld.service
+      - mysqld
     tags:
       - services
 
