@@ -8,9 +8,7 @@
   - name: "mysql_zabbix_pass"
     prompt: "Enter mysql_zabbix_pass"
     private: yes
-    encrypt: "md5_crypt"
     confirm: yes
-    salt_size: 7
 
   tasks:
 
