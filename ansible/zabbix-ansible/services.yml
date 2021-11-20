@@ -1,0 +1,24 @@
+---
+
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+
+  tasks:
+
+  - name: OPERATING SYSTEM | Restart and enable services
+    ansible.builtin.systemd:
+      name: "{{ item }}"
+      state: restarted
+      enabled: yes
+    with_items:
+      - zabbix-server
+      - zabbix-agent
+      - httpd
+      - rh-php72-php-fpm
+      - mysqld.service
+    tags:
+      - services
+
+...
+
