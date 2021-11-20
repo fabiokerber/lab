@@ -1,0 +1,9 @@
+module zabbix_server 1.0;
+          
+require {
+    type zabbix_t;
+    type zabbix_var_run_t;
+    class sock_file {create unlink};
+    }
+
+allow zabbix_t zabbix_var_run_t:sock_file {create unlink};

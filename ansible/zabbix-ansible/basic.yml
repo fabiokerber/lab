@@ -1,0 +1,103 @@
+---
+
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+    packages:
+      - policycoreutils-python
+      - mysql-server
+      - zabbix-web-mysql-scl
+      - zabbix-server-mysql
+      - zabbix-apache-conf-scl
+      - zabbix-agent
+      - zabbix-sender
+      - zabbix-get
+      - MySQL-python
+
+  tasks:
+
+  - name: OPERATING SYSTEM | Add zabbix and mysql repository
+    yum:
+      name: "{{ item }}"
+      state: present
+    with_items:
+      - https://repo.zabbix.com/zabbix/5.0/rhel/7/x86_64/zabbix-release-5.0-1.el7.noarch.rpm
+      - https://dev.mysql.com/get/mysql80-community-release-el7-3.noarch.rpm
+
+  - name: OPERATING SYSTEM | Enable zabbix frontend repository
+    shell: "{{ item }}"
+    with_items:
+      - sed -i '11s/.*/enabled=1/' /etc/yum.repos.d/zabbix.repo
+
+  - name: OPERATING SYSTEM | Install common packages
+    yum:
+      name: "{{ packages }}"
+      state: latest
+
+  - name: MYSQL | Enable service
+    ansible.builtin.service:
+      name: mysqld
+      enabled: yes
+
+  - name: FIREWALL | Allow http & https zone public
+    ansible.posix.firewalld:
+      service: "{{ item }}"
+      permanent: yes
+      immediate: yes
+      zone: public
+      state: enabled
+    with_items:
+      - http
+      - https
+
+  - name: FIREWALL | Allow 10050/tcp
+    ansible.posix.firewalld:
+      port: "{{ item }}"
+      permanent: yes
+      immediate: yes
+      state: enabled
+    with_items:
+      - "10050/tcp"
+      - "10051/tcp"
+
+  - name: SELINUX | Check settings already made
+    shell: "{{ item }}"
+    with_items:
+      - getsebool -a | grep 'httpd_can_connect_zabbix' | awk '{print $3}'
+    register: sesettings
+    ignore_errors: yes
+
+  - debug:
+      msg: "httpd_can_connect_zabbix --> {{ sesettings.results[0].stdout }}"
+
+  - name: SELINUX | Set Booleans
+    ansible.posix.seboolean:
+      name: "{{ item }}"
+      state: yes
+      persistent: yes
+    with_items:
+      - "httpd_can_connect_zabbix"
+      - "httpd_can_network_connect_db"
+      - "httpd_can_network_connect"
+      - "daemons_enable_cluster_mode"
+    when: sesettings.results[0].stdout == "off"
+
+  - name: SELINUX | Copying zabbix_server.te to /tmp/
+    ansible.builtin.copy:
+      src: zabbix_server.te
+      dest: /tmp/
+      owner: root
+      group: root
+      mode: '0755'
+      backup: no
+    when: sesettings.results[0].stdout == "off"
+
+  - name: SELINUX | Allow zabbix modules
+    shell: "{{ item }}"
+    with_items:
+      - checkmodule -m -M /tmp/zabbix_server.te -o /tmp/zabbix_server.mod
+      - semodule_package -m /tmp/zabbix_server.mod -o /tmp/zabbix_server.pp
+      - semodule -i /tmp/zabbix_server.pp
+    when: sesettings.results[0].stdout == "off"
+
+...
