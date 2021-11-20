@@ -1,0 +1,317 @@
+---
+
+- name: OPERATING SYSTEM | Changing /etc/profile     
+  lineinfile: dest=/etc/profile line={{ item }}    
+  with_items:                                      
+    - 'export HISTTIMEFORMAT="%d/%m/%Y - %H:%M:%S - "'
+    - 'export HISTSIZE="5000"'                     
+    - 'export HISTFILESIZE="5000"'                 
+    - 'export TMOUT="120"'                         
+    - 'alias ls="ls -lh --color"'                  
+    - 'alias grep="grep --color"'                  
+    - 'alias rm="rm -i"'                           
+  tags:
+  - before_provision
+
+- name: SAMBA | Editing /etc/hosts
+  lineinfile: dest=/etc/hosts line={{ item }}
+  with_items:
+    - '{{ ip_local }} servidor.{{ domain1 }}.domain servidor'
+  tags:
+  - before_provision
+
+- name: OPERATING SYSTEM | Running command rm -rf /etc/resolv.conf
+  shell: rm -rf /etc/resolv.conf
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating file /etc/resolv.conf
+  lineinfile:
+      path: /etc/resolv.conf
+      line: |
+        search {{ domain1 }}.domain
+        nameserver {{ ip_local }}
+        nameserver {{ dns1 }}
+        nameserver {{ dns2 }}
+      create: yes
+      mode: '0644'
+  tags:
+  - before_provision
+
+- name: OPERATING SYSTEM | Importing key "https://www.elrepo.org/RPM-GPG-KEY-elrepo.org"
+  rpm_key: key=https://www.elrepo.org/RPM-GPG-KEY-elrepo.org state=present
+  tags:
+  - before_provision                                                 
+
+- name: OPERATING SYSTEM | Installing epel-release and elrepo
+  dnf:                                             
+    name:                                          
+      - epel-release                               
+      - https://www.elrepo.org/elrepo-release-8.el8.elrepo.noarch.rpm
+    state: latest                                 
+  tags:
+  - before_provision
+
+- name: OPERATING SYSTEM | Inserting update time job 
+  cron: name='Time Update' minute='*/15' job='/usr/sbin/ntpdate -u b.st1.ntp.br'
+  tags:
+  - before_provision
+
+- name: SAMBA | Inserting environment variables on /etc/rc.d/rc.local
+  lineinfile:
+      path: /etc/rc.d/rc.local
+      line: |    
+        
+        SAMBA_HOME=/work0/argon-infra/samba4
+        PATH=$PATH:$SAMBA_HOME/bin
+        export PATH SAMBA_HOME
+      create: no
+  tags:
+  - before_provision
+
+- name: SAMBA | Inserting environment variables on /etc/profile
+  lineinfile:
+      path: /etc/profile
+      line: |    
+        
+        SAMBA_HOME=/work0/argon-infra/samba4
+        PATH=$PATH:$SAMBA_HOME/bin
+        export PATH SAMBA_HOME
+      create: no
+  tags:
+  - before_provision
+
+- name: OPERATING SYSTEM | Running command . /etc/profile
+  shell: . /etc/profile
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Installing common packages 
+  dnf: name={{ common_packages_samba }} state=latest
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating symbolik link 
+  file:
+      src: /usr/bin/python3.6
+      dest: /usr/bin/python
+      force: yes
+      state: link
+  tags:
+  - before_provision
+
+- name: SAMBA | Installing dnspython
+  shell: pip3.6 install dnspython
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Downloading samba-4.10.5.tar.gz
+  get_url:
+      url: https://download.samba.org/pub/samba/stable/samba-4.10.5.tar.gz
+      dest: /tmp/samba-4.10.5.tar.gz
+      mode: '0777'
+  tags:
+  - before_provision
+
+- name: SAMBA | Extracting file samba-4.10.5.tar.gz to /tmp/samba4 
+  unarchive:
+      src: /tmp/samba-4.10.5.tar.gz
+      dest: /tmp/
+      remote_src: yes
+  tags:
+  - before_provision
+
+- name: SAMBA | Configuring SAMBA on /work0/argon-infra/samba4
+  shell: cd /tmp/samba-4.10.5 && ./configure --prefix=/work0/argon-infra/samba4
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Compiling SAMBA on /work0/argon-infra/samba4
+  shell: cd /tmp/samba-4.10.5 && make
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Installing SAMBA on /work0/argon-infra/samba4
+  shell: cd /tmp/samba-4.10.5 && make install
+  args:
+    warn: false
+  tags:
+  - before_provision
+
+- name: SAMBA | Copying /work0/argon-infra/samba4/private/krb5.conf to /etc
+  shell: \cp /work0/argon-infra/samba4/private/krb5.conf /etc/
+  args:
+    warn: false
+  tags:
+  - after_provision
+
+- name: SAMBA | Creating symbolik link
+  file:
+      src: /work0/argon-infra/samba4/lib/libnss_winbind.so.2
+      dest: /lib/libnss_winbind.so
+      force: yes
+      state: link
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating symbolik link
+  file:
+      src: /lib/libnss_winbind.so
+      dest: /lib/libnss_winbind.so.2
+      force: yes
+      state: link
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating symbolik link
+  file:
+      src: /work0/argon-infra/samba4/lib/libnss_winbind.so.2
+      dest: /lib64/libnss_winbind.so
+      force: yes
+      state: link
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating symbolik link
+  file:
+      src: /lib/libnss_winbind.so
+      dest: /lib64/libnss_winbind.so.2
+      force: yes
+      state: link
+  tags:
+  - before_provision
+
+- name: OPERATING SYSTEM | Building library cache
+  shell: /sbin/ldconfig 
+  args:
+    warn: false
+  tags:
+  - after_provision
+
+- name: SAMBA | Set search order on /etc/nsswitch.conf
+  lineinfile:
+    dest=/etc/nsswitch.conf
+    state=present
+    regexp={{ item.regexp }}
+    line={{ item.line }}
+    backrefs=yes
+  with_items:
+    - { regexp: 'passwd:      sss files systemd', line: 'passwd:      sss files winbind systemd' }
+    - { regexp: 'group:       sss files systemd', line: 'group:       sss files winbind systemd' }
+  tags:
+  - after_provision
+
+- name: SAMBA | Creating folders /work1{sistemas,imagens,documentos}
+  file:
+      path: "{{ item }}"
+      state: directory
+      mode: '0777'
+  with_items:
+    - /work1/sistemas
+    - /work1/imagens
+    - /work1/documentos
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating folder /work0/argon-infra/samba4
+  file:
+      path: /work0/argon-infra/samba4
+      state: directory
+      mode: '0755'
+  tags:
+  - before_provision
+
+- name: SAMBA | Creating recycle bin folder 
+  file:
+      path: /work1/.lixeira
+      state: directory
+      owner: root
+      group: users
+      mode: '0775'
+  tags:
+  - after_provision
+
+- name: SAMBA | Copying samba-ad-dc.service to /etc/systemd/system/
+  copy: src=samba-ad-dc.service dest=/etc/systemd/system/samba-ad-dc.service mode='0755'
+  tags:
+  - after_provision
+
+- name: SAMBA | Copying smb.conf to /work0/argon-infra/samba4/etc/
+  copy: src=smb.conf dest=/work0/argon-infra/samba4/etc/ backup=yes mode='0755'
+  tags:
+  - after_provision
+
+- name: SAMBA | Editing /work0/argon-infra/samba4/etc/smb.conf
+  lineinfile:
+    dest=/work0/argon-infra/samba4/etc/smb.conf
+    state=present
+    regexp={{ item.regexp }}
+    line={{ item.line }}
+    backrefs=yes
+  with_items:
+    - { regexp: 'dns forwarder = GATEWAY', line: '        dns forwarder = {{ dns1 }} {{ dns2 }}' }
+    - { regexp: 'interfaces = lo INTERFACE_HOSTONLY', line: '        interfaces = lo {{ interface_bridged }}' }
+    - { regexp: 'realm = DOMAIN2.DOMAIN', line: '        realm = {{ domain2 }}.DOMAIN' }
+    - { regexp: 'workgroup = DOMAIN2', line: '        workgroup = {{ domain2 }}' }
+    - { regexp: 'idmap config DOMAIN1:schema_mode = rfc2307', line: '        idmap config {{ domain1 }}:schema_mode = rfc2307' }
+    - { regexp: 'idmap config DOMAIN1:unix_nss_info = yes', line: '        idmap config {{ domain1 }}:unix_nss_info = yes' }
+    - { regexp: 'path = /work0/argon-infra/samba4/var/locks/sysvol/DOMAIN1.domain/scripts', line: '        path = /work0/argon-infra/samba4/var/locks/sysvol/{{ domain1 }}.domain/scripts' }
+  tags:
+  - after_provision
+
+- name: OPERATING SYSTEM | Reload systemctl daemon
+  shell:  systemctl daemon-reload
+  args:
+    warn: false
+  notify:
+    - Restart samba
+  tags:
+  - after_provision
+
+- name: SAMBA | 
+  lineinfile: 
+      path: /etc/rsyslog.conf    
+      line: |                                      
+        
+        local5.notice /var/log/samba/samba-full_audit.log
+      create: no
+  notify:
+    - Restart rsyslog
+  tags:
+  - after_provision
+
+- name: SAMBA | Testing {{ domain1 }}.domain
+  debug:
+    msg: "{{ lookup('pipe', '/work0/argon-infra/samba4/bin/wbinfo --ping-dc') }}"
+  tags:
+    - test_provision
+
+- name: SAMBA | Testing {{ domain1 }}.domain
+  debug:
+    msg: "{{ lookup('pipe', 'host -t SRV _ldap._tcp.{{ domain1 }}.domain') }}"
+  tags:
+    - test_provision
+
+- name: SAMBA | Testing {{ domain1 }}.domain
+  debug:
+    msg: "{{ lookup('pipe', 'host -t SRV _kerberos._udp.{{ domain1 }}.domain') }}"
+  tags:
+    - test_provision
+
+- name: SAMBA | Testing {{ domain1 }}.domain
+  debug:
+    msg: "{{ lookup('pipe', 'host -t A servidor.{{ domain1 }}.domain') }}"
+  tags:
+    - test_provision
+
+...

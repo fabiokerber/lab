@@ -1,0 +1,20 @@
+---
+
+- name: Playbook_usercreation
+  hosts: local
+  roles: 
+    - user_creation
+
+  vars_prompt:
+  - name: "user_account"
+    prompt: "Enter a new account"
+    private: no
+
+  - name: "user_password"
+    prompt: "Enter a new password"
+    private: yes
+    encrypt: "md5_crypt"
+    confirm: yes
+    salt_size: 7
+
+...

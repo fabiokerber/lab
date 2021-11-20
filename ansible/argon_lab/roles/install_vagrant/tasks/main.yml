@@ -1,0 +1,43 @@
+---
+
+- name: OPERATING SYSTEM | Install common packages for vagrant
+  yum: name={{ common_packages_vagrant }} state=latest
+
+- name: OPERATING SYSTEM | Downloading kernel-devel-{{ kernel_version }}.rpm
+  get_url:
+    url: 'https://rpmfind.net/linux/centos/{{ system_version }}/BaseOS/x86_64/os/Packages/kernel-devel-{{ kernel_version }}.rpm'
+    dest: '/tmp/{{ kernel_version }}.rpm'
+
+- name: OPERATING SYSTEM | Installing kernel-devel-{{ kernel_version }}.rpm
+  shell: 'yum localinstall /tmp/{{ kernel_version }}.rpm -y'
+  args:
+    warn: false
+
+- name: VIRTUALBOX | Installing VirtualBox 6.1.12
+  dnf:
+    name: 'https://download.virtualbox.org/virtualbox/6.1.12/VirtualBox-6.1-6.1.12_139181_el8-1.x86_64.rpm'
+    state: present
+  notify:
+    - Restart virtualbox
+
+- name: VIRTUALBOX | Downloading VirtualBox Extension Pack 6.1.12
+  get_url:
+    url: 'https://download.virtualbox.org/virtualbox/6.1.12/Oracle_VM_VirtualBox_Extension_Pack-6.1.12.vbox-extpack'
+    dest: '/tmp/Oracle_VM_VirtualBox_Extension_Pack-6.1.12.vbox-extpack'
+
+- name: VIRTUALBOX | VirtualBox Extension Pack 6.1.12
+  shell: 'echo y | sudo VBoxManage extpack install /tmp/Oracle_VM_VirtualBox_Extension_Pack-6.1.12.vbox-extpack'
+  args:
+    warn: false
+
+- name: VAGRANT | Downloading Vagrant 2.2.9
+  get_url:
+    url: 'https://releases.hashicorp.com/vagrant/2.2.9/vagrant_2.2.9_x86_64.rpm'
+    dest: '/tmp/vagrant_2.2.9_x86_64.rpm'
+
+- name: VAGRANT | Installing Vagrant 2.2.9
+  shell: 'yum localinstall /tmp/vagrant_2.2.9_x86_64.rpm -y'
+  args:
+    warn: false
+
+...

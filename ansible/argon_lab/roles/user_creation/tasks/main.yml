@@ -1,0 +1,59 @@
+---
+
+#- name: create new group account
+#  user: name={{ user_account }} password={{ user_password }}
+
+- name: USERS | Add user {{ user_account }}
+  user:
+    name={{ user_account }}
+    comment="User {{ user_account }} created via Ansible Playbook"
+    shell=/bin/bash
+    home=/home/{{ user_account }}
+    password={{ user_password }}
+
+- name: USERS | Create file /home/{{ user_account }}/.vimrc
+  file:
+    path: /home/{{ user_account }}/.vimrc
+    state: touch
+    mode: u=rw,g=r,o=r
+
+- name: USERS | Change /home/{{ user_account }}/.vimrc
+  lineinfile: dest=/home/{{ user_account }}/.vimrc line={{ item }}
+  with_items:
+    - syntax on
+    - set number
+    - set cursorline             
+    - set cursorcolumn
+    - set showmode
+    - set ignorecase
+    - set ruler
+    - set hlsearch
+    - set showcmd
+    - set smarttab
+    - set nowrap
+    - set sm
+    - set visualbell
+    - set laststatus=1
+    - set title
+    - set term=xterm-256color
+    - set smartcase
+    - set incsearch
+    - set autoindent
+    - set shiftwidth=2
+    - set smartindent
+    - set softtabstop=2
+    - set undolevels=1000
+
+- name: USERS | Add user {{ user_account }} on Sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    line: "{{ user_account }}  ALL=(ALL:ALL) NOPASSWD: ALL"
+
+#- name: SSH | Generate SSH keys to king user
+#  command: ssh-keygen -b 2048 -t rsa -f /home/{{ user_account }}/.ssh/id_rsa -N ''
+#  args:
+#    creates: /home/{{ user_account }}/.ssh/id_rsa
+#  become: yes
+#  become_user: {{ user_account }}
+
+...

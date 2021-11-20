@@ -1,0 +1,134 @@
+---
+
+- name: DRBD | Installing common packages
+  hosts: localhost
+  tasks:
+  
+  - yum:
+      name:
+        - gcc
+        - readline-devel
+        - zlib-devel
+        - make
+        - drbd84
+        - kmod-drbd84
+      state: present
+
+- name: DRBD | Removing include lines in file /etc/drbd.conf
+  hosts: localhost
+  tasks:
+
+  - shell: sed -i s/^include.*$/#/ /etc/drbd.conf
+    args:
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+- name: DRBD | Adjusting /etc/drbd.conf  
+  hosts: localhost
+  tasks:
+
+  - lineinfile: dest=/etc/drbd.conf line={{ item }}    
+    with_items:                                      
+      - 'global { usage-count yes; }'
+      - 'common { syncer {rate 100M; }}'                     
+    tags:
+    - primary
+    - secondary
+
+- name: DRBD | Installing and Configuring DRBD synchronism
+  hosts: localhost
+
+  vars_files:
+  - /etc/ansible/roles/install_drbd_argon/vars/main.yml  
+
+  vars_prompt:
+   - name: "work"
+     prompt: "Digite o nome do recurso a ser criado (work0)"
+     private: no
+   
+   - name: "drbd"
+     prompt: "Digite drbd à ser criado (drbd0)"
+     private: no
+
+   - name: "primary_disc"
+     prompt: "Informe o disco à ser sincronizado no servidor primario (/dev/sda7)"
+     private: no
+
+   - name: "secondary_disc"
+     prompt: "Informe o disco à ser sincronizado no servidor secundario (/dev/sda7)"
+     private: no
+
+   - name: "primary_synchronism_ip"
+     prompt: "Informe o IP de interface do primario para sincronismo deste recurso (10.0.0.21)"
+     private: no
+
+   - name: "secondary_synchronism_ip"
+     prompt: "Informe o IP de interface do secundario para sincronismo deste recurso (10.0.0.22)"
+     private: no
+
+  tasks:
+    - lineinfile:
+        path: /etc/drbd.conf
+        line: |    
+          
+          resource {{ work }}
+
+                  {
+                  protocol C;
+        
+                  handlers {
+                          fence-peer "/usr/lib/drbd/crm-fence-peer.sh";
+                          after-resync-target "/usr/lib/drbd/crm-unfence-peer.sh";
+                  }
+
+                  startup {
+                          wfc-timeout 30;
+                          degr-wfc-timeout 120;
+                  }
+
+                  disk { on-io-error detach; }
+
+                  net {
+                          sndbuf-size 0;
+                          timeout 60; 
+                          connect-int 10;
+                          ping-int 10; 
+                          ping-timeout 5;
+                          max-buffers 4096;
+                          max-epoch-size 4096;
+                          after-sb-0pri discard-zero-changes;
+                          after-sb-0pri discard-least-changes;
+                          after-sb-1pri discard-secondary;
+                          after-sb-2pri disconnect;
+                  }
+
+                  syncer { rate 100M; }
+
+                  on {{ hostname_primary }} {
+                          device /dev/{{ drbd }};
+                          disk {{ primary_disc }};
+                          address {{ primary_synchronism_ip }}:7788;
+                          meta-disk internal;
+                  }
+
+                  on {{ hostname_secondary }} {
+                          device /dev/{{ drbd }};
+                          disk {{ secondary_disc }};
+                          address {{ secondary_synchronism_ip }}:7788;
+                          meta-disk internal;
+                  }
+          }
+        create: no  
+
+    - shell: drbdadm create-md {{ work }}
+ 
+    - service:
+        name: drbd
+        state: restarted
+        enabled: yes
+
+    - shell: drbdadm -- --overwrite-data-of-peer primary all
+    
+...

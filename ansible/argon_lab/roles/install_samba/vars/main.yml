@@ -1,0 +1,104 @@
+---
+
+domain1: home
+domain2: HOME
+interface_bridged: eth1
+ip_local: 192.168.0.200
+dns1: 192.168.0.1
+dns2: 8.8.8.8
+
+common_packages_samba:
+  - "@Development Tools"
+  - acl
+  - attr 
+  - autoconf
+  - automake
+  - avahi-devel
+  - bind-utils
+  - binutils
+  - bison
+  - ccache
+  - chrpath
+  - cups-devel
+  - curl
+  - dbus
+  - dbus-devel
+  - docbook-dtds
+  - docbook-style-xsl
+  - flex
+  - gawk
+  - gcc
+  - gdb
+  - git
+  - gnutls-devel
+  - glib2-devel
+  - glibc-common
+  - gpgme-devel
+  - gzip
+  - hostname
+  - htop
+  - jansson-devel
+  - keyutils-libs-devel
+  - krb5-devel
+  - krb5-server
+  - krb5-workstation
+  - perl
+  - libacl-devel
+  - libaio-devel
+  - libarchive-devel
+  - libattr-devel
+  - libblkid-devel
+  - libbsd-devel
+  - libcap-devel
+  - libicu-devel
+  - libxml2-devel
+  - libpcap-devel
+  - libtasn1-devel
+  - libtasn1-tools
+  - libtirpc-devel
+  - libunwind-devel
+  - libuuid-devel
+  - libxslt
+  - lmdb
+  - lmdb-devel
+  - make
+  - nettle-devel
+  - ncurses-devel
+  - openldap-devel
+  - pam-devel
+  - patch
+  - perl-Archive-Tar
+  - perl-ExtUtils-MakeMaker
+  - perl-Parse-Yapp
+  - perl-core
+  - perl-generators
+  - perl-interpreter
+  - pkgconfig
+  - popt-devel
+  - procps-ng
+  - psmisc
+  - python36
+  - python3-pip
+  - python3-cryptography
+  - python3-dns
+  - python3-gpg
+  - python36-devel
+  - readline
+  - readline-devel
+  - redhat-lsb
+  - rng-tools
+  - rpcgen
+  - rsync
+  - rsyslog
+  - sed
+  - sudo
+  - systemd-devel
+  - tar
+  - tree
+  - wget
+  - which
+  - xfsprogs-devel
+  - yum-utils
+  - zlib-devel
+
+...

@@ -1,0 +1,18 @@
+---
+
+- name: OPERATING SYSTEM | Install common packages for docker
+  yum: name={{ common_packages_docker }} state=latest
+
+- name: DOCKER | Installing Containerd.io 1.2.6
+  dnf:
+    name: 'https://download.docker.com/linux/centos/7/x86_64/stable/Packages/containerd.io-1.2.6-3.3.el7.x86_64.rpm'
+    state: present
+
+- name: DOCKER | Installing Docker
+  shell: 'curl -fssl https://get.docker.com | bash'
+  args:
+    warn: false
+  notify:
+    - Restart Docker
+
+...

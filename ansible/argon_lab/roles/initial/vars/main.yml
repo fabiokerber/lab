@@ -1,0 +1,16 @@
+---
+
+common_packages_ctos:
+  - htop
+  - lsb
+  - vim
+  - tree
+  - gdisk
+  - iptraf
+  - lshw
+  - nload
+  - nmap
+  - telnet
+  - wget
+
+...

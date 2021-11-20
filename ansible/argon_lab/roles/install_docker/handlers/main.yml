@@ -1,0 +1,6 @@
+---
+
+- name: Restart Docker
+  systemd: state=restarted enabled=yes daemon_reload=yes name=docker
+
+...

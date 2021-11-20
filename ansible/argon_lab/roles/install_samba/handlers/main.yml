@@ -1,0 +1,9 @@
+---
+
+- name: Restart samba
+  systemd: state=restarted enabled=yes daemon_reload=yes name=samba-ad-dc.service
+
+- name: Restart rsyslog
+  systemd: state=restarted enabled=yes daemon_reload=yes name=rsyslog.service
+
+...

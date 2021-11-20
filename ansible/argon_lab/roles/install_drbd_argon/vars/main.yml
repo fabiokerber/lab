@@ -1,0 +1,6 @@
+---
+
+hostname_primary: srv01-lab
+hostname_secondary: srv02-lab
+
+...
