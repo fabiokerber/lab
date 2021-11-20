@@ -1,0 +1,161 @@
+---
+
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+
+  tasks:
+
+  - name: MYSQL | Create a new pass for root user
+    command: openssl rand -base64 6 creates=/root/.my.cnf
+    register: mysql_root_pass
+    tags:
+      - setup
+
+  - name: MYSQL | Remove anonymous access
+    community.mysql.mysql_user:
+      name: ""
+      host: "{{ item }}"
+      state: absent
+    with_items:
+      - localhost
+      - "{{ ansible_fqdn }}"
+    tags:
+      - setup
+
+  - name: MYSQL | Remove test database
+    community.mysql.mysql_db:
+      name: test
+      state: absent
+    tags:
+      - setup
+
+  - name: MYSQL | Change root pass
+    community.mysql.mysql_user:
+      name: root
+      host: "{{ item }}"
+      password: "{{ mysql_root_pass.stdout }}"
+    with_items:
+      - "{{ansible_fqdn}}"
+      - 127.0.0.1
+      - ::1
+      - localhost
+    when: mysql_root_pass.changed
+    tags:
+      - setup
+
+  - name: MYSQL | Create zabbix database
+    community.mysql.mysql_db:
+      name: zabbixdb
+      collation: utf8_bin
+      encoding: utf8
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_pass.stdout }}"
+    tags:
+      - setup
+
+  - name: MYSQL | Create a new pass for zabbix user
+    command: openssl rand -base64 6 creates=/tmp/.my.cnf
+    register: mysql_zabbix_pass
+    tags:
+      - setup
+
+  - name: MYSQL | Create database user zabbix with all database privileges
+    community.mysql.mysql_user:
+      name: zabbix
+      password: "{{ mysql_zabbix_pass.stdout }}"
+      priv: 'zabbixdb.*:ALL'
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_pass.stdout }}"
+    tags:
+      - setup
+
+  - name: ZABBIX | Copying zabbix_server.conf to /etc/zabbix/
+    ansible.builtin.copy:
+      src: zabbix_server.conf
+      dest: /etc/zabbix/
+      owner: root
+      group: zabbix
+      mode: '0600'
+      backup: yes
+    tags:
+      - setup
+
+  - name: ZABBIX | Edit file /etc/zabbix/zabbix_server.conf
+    ansible.builtin.lineinfile:
+        path: /etc/zabbix/zabbix_server.conf
+        line: |
+
+          DBPassword={{ mysql_zabbix_pass.stdout }}
+        create: no
+        owner: root
+        group: zabbix
+        mode: '0600'
+    tags:
+      - setup
+  
+  - name: ZABBIX | Copying zabbix.conf to /etc/opt/rh/rh-php72/php-fpm.d/
+    ansible.builtin.copy:
+      src: zabbix.conf
+      dest: /etc/opt/rh/rh-php72/php-fpm.d/
+      owner: root
+      group: root
+      mode: '0644'
+      backup: yes
+    tags:
+      - setup
+
+  - name: ZABBIX | Copying zabbix_agentd.conf to /etc/zabbix/
+    ansible.builtin.copy:
+      src: zabbix_agentd.conf
+      dest: /etc/zabbix/
+      owner: root
+      group: root
+      mode: '0644'
+      backup: yes
+    tags:
+      - setup
+
+  - name: ZABBIX | Edit file /etc/zabbix/zabbix_agentd.conf
+    ansible.builtin.lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        line: |
+
+          Hostname={{ ansible_hostname }}
+        create: no
+        owner: root
+        group: root
+        mode: '0644'
+    tags:
+      - setup
+
+  - name: TAKE NOTE! | Display new root pass in playbook output
+    debug:
+      msg: "New root pass: {{ mysql_root_pass.stdout }}"
+    when: mysql_root_pass.changed
+    tags:
+      - setup
+
+  - name: TAKE NOTE! | Display new zabbix pass in playbook output
+    debug:
+      msg: "New zabbix pass: {{ mysql_zabbix_pass.stdout }}"
+    when: mysql_zabbix_pass.changed
+    tags:
+      - setup
+
+  - name: OPERATING SYSTEM | Restart and enable services
+    ansible.builtin.systemd:
+      name: "{{ item }}"
+      state: restarted
+      enabled: yes
+    with_items:
+      - zabbix-server
+      - zabbix-agent
+      - httpd
+      - rh-php72-php-fpm
+    tags:
+      - services
+
+...
