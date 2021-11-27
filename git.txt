@@ -1,0 +1,36 @@
+> Conexao
+git init
+git config --global http.sslVerify false
+
+git ckeckout -b <branch>
+
+git config --global user.name "fabio.kerber@gmail.com"
+git config --global user.email "fabio.kerber@gmail.com"
+git config --global core.editor vi
+git add .;git commit -m "Atualização de codigo";git push
+  <hash git>
+
+git add .;git commit -m "Atualização de codigo";git push --set-upstream origin develop
+
+git pull
+
+> Tags (remove files)
+
+1. New Merge Request
+    Criação da Regra L0000 - REQXXXX
+
+2. Tags > New Tag > Master para nova Tag
+    Tag name: v2.5.4
+    Segundo Campo:
+    ### 05/10/2000 - v2.5.4 - Fabio kerber
+
+    ** Atualização **
+
+    * Atendimento a(s) REQ(s):
+        * REQXXXX
+
+3. Atualiza Projeto id:0001
+    "Get latest SCM revision"
+
+4. Altera Template Tower id:0002
+    Campo "SCM BRANCH"
