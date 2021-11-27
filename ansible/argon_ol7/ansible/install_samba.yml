@@ -1,0 +1,399 @@
+---
+- hosts: localhost
+  vars:
+    domain1: <nome_cartorio>
+    domain2: <NOME_CARTORIO>
+    interface_lan: enp0s3
+    rede_cartorio: 192.168.0.*/24
+    ip_alta_provisorio: 192.168.0.*
+    ip_alta_definitivo: 192.168.0.*
+    ip_gateway: 192.168.0.*
+    ansible_python_interpreter: /usr/bin/python2.7
+    common_packages_samba:
+      - "@Development Tools"
+      - attr
+      - bind-utils
+      - docbook-style-xsl
+      - gcc
+      - gdb
+      - krb5-workstation
+      - libsemanage-python
+      - libxslt
+      - perl
+      - perl-ExtUtils-MakeMaker
+      - perl-Parse-Yapp
+      - perl-Test-Base
+      - pkgconfig
+      - policycoreutils-python
+      - python2-crypto
+      - gnutls-devel
+      - libattr-devel
+      - keyutils-libs-devel
+      - libacl-devel
+      - libaio-devel
+      - libblkid-devel
+      - libxml2-devel
+      - openldap-devel
+      - pam-devel
+      - popt-devel
+      - python-devel
+      - readline-devel
+      - zlib-devel
+      - systemd-devel
+      - lmdb-devel
+      - jansson-devel
+      - gpgme-devel
+      - pygpgme
+      - libarchive-devel
+      - python-crypto
+      - python-devel
+      - python-dns
+      - python-markdown
+      - python36
+      - python36-crypto
+      - python36-devel
+      - python36-dns
+      - yum-utils
+
+  tasks:
+
+  - name: FIREWALL | Allow samba
+    ansible.posix.firewalld:
+      service: samba
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - before_provision
+    - secondary
+
+  - name: FIREWALL | Allow samba-dc
+    ansible.posix.firewalld:
+      service: samba-dc
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - before_provision
+    - secondary
+
+  - name: FIREWALL | Allow 123/udp
+    ansible.posix.firewalld:
+      port: 123/udp
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - before_provision
+    - secondary
+
+  - name: FIREWALL | Allow 323/udp
+    ansible.posix.firewalld:
+      port: 323/udp
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - before_provision
+    - secondary
+
+  - name: CHRONY | Delete file /etc/chrony.conf
+    ansible.builtin.file:
+      path: /etc/chrony.conf
+      state: absent
+    tags:
+    - before_provision
+    - secondary
+
+  - name: CHRONY | Create file /etc/chrony.conf
+    ansible.builtin.lineinfile:
+        path: /etc/chrony.conf
+        line: |
+          server a.st1.ntp.br iburst
+          server b.st1.ntp.br iburst
+          server c.st1.ntp.br iburst
+          server d.st1.ntp.br iburst
+
+          driftfile /var/lib/chrony/drift
+
+          makestep 1.0 3
+
+          rtcsync
+
+          allow {{ rede_cartorio }}
+
+          logdir /var/log/chrony
+
+          bindaddress {{ ip_alta_definitivo }}
+        create: yes
+        mode: '0644'
+    tags:
+    - before_provision
+    - secondary
+
+  - name: OPERATING SYSTEM | Restart chrony
+    ansible.builtin.service:
+      name: chronyd
+      state: restarted
+    tags:
+    - before_provision
+    - secondary
+
+  - name: OPERATING SYSTEM | Delete file /etc/resolv.conf
+    ansible.builtin.file:
+      path: /etc/resolv.conf
+      state: absent
+    tags:
+    - before_provision
+
+  - name: OPERATING SYSTEM | Create file /etc/resolv.conf
+    ansible.builtin.lineinfile:
+        path: /etc/resolv.conf
+        line: |
+          search {{ domain1 }}.domain
+          nameserver {{ ip_alta_provisorio }}
+          nameserver {{ ip_gateway }}
+          nameserver 1.1.1.1
+        create: yes
+        mode: '0644'
+    tags:
+    - before_provision
+
+  - name: OPERATING SYSTEM | Copy ol7_optional.repo into /etc/yum.repos.d/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/repo/ol7_optional.repo
+      dest: /etc/yum.repos.d/ol7_optional.repo
+      owner: root
+      group: root
+      mode: '0644'
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Create symbolik link to /usr/bin/python3.6 
+    ansible.builtin.file:
+      src: /usr/bin/python3.6
+      dest: /usr/bin/python3
+      force: yes
+      state: link
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Install common packages 
+    yum: 
+      name: "{{ common_packages_samba }}" 
+      state: latest
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Extract dnspython-2.0.0.zip into /usr/local/src/
+    ansible.builtin.unarchive:
+      src: /root/pacotes_Linux_ol7/samba/dnspython-2.0.0.zip
+      dest: /usr/local/src/
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Install dnspython-2.0.0
+    ansible.builtin.shell: 
+      cmd: cd /usr/local/src/dnspython-2.0.0 && python3.6 setup.py install --user
+    tags:
+      - before_provision
+      - secondary
+
+  - name: SAMBA | Download and extract samba-4.11.17.tar.gz into /usr/local/src/
+    ansible.builtin.unarchive:
+      src: https://download.samba.org/pub/samba/stable/samba-4.11.17.tar.gz
+      dest: /usr/local/src/
+      remote_src: yes
+    tags:
+      - before_provision
+      - secondary
+
+  - name: SAMBA | Setup SAMBA into /work0/argon-infra/samba4
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/samba-4.11.17 && ./configure --prefix=/work0/argon-infra/samba4
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Compile SAMBA into /work0/argon-infra/samba4
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/samba-4.11.17 && make
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Install SAMBA into /work0/argon-infra/samba4
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/samba-4.11.17 && make install
+    tags:
+    - before_provision
+    - secondary
+
+  - name: SAMBA | Copy krb5.conf into /etc/
+    ansible.builtin.copy:
+      src: /work0/argon-infra/samba4/private/krb5.conf
+      dest: /etc/krb5.conf
+      owner: root
+      group: root
+      mode: '0644'
+      force: yes
+    tags:
+    - after_provision
+
+  - name: SAMBA | Create symbolik link to /work0/argon-infra/samba4/lib/libnss_winbind.so.2
+    ansible.builtin.file:
+      src: /work0/argon-infra/samba4/lib/libnss_winbind.so.2
+      dest: /lib64/libnss_winbind.so.2
+      force: yes
+      state: link
+    tags:
+    - after_provision
+
+  - name: SAMBA | Create symbolik link to /lib64/libnss_winbind.so.2
+    ansible.builtin.file:
+      src: /lib64/libnss_winbind.so.2
+      dest: /lib64/libnss_winbind.so
+      force: yes
+      state: link
+    tags:
+    - after_provision
+
+  - name: OPERATING SYSTEM | Building library cache
+    ansible.builtin.shell:
+      cmd: /sbin/ldconfig
+    tags:
+    - after_provision
+
+  - name: OPERATING SYSTEM | Set search order into /etc/nsswitch.conf
+    ansible.builtin.lineinfile:
+      dest: /etc/nsswitch.conf
+      state: present
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: 'passwd:     files sss', line: 'passwd:     files sss winbind' }
+      - { regexp: 'group:      files sss', line: 'group:      files sss winbind' }
+    tags:
+    - after_provision
+    - secondary
+
+  - name: SAMBA | Copy smb.conf into /work0/argon-infra/argon-infra/samba4/etc/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/samba/smb.conf
+      dest: /work0/argon-infra/samba4/etc/smb.conf
+      owner: root
+      group: root
+      mode: '0644'
+      force: yes
+    tags:
+    - after_provision
+
+  - name: SAMBA | Edit /work0/argon-infra/samba4/etc/smb.conf
+    ansible.builtin.lineinfile:
+      dest: /work0/argon-infra/samba4/etc/smb.conf
+      state: present
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: 'dns forwarder = GATEWAY', line: '        dns forwarder = {{ ip_gateway }}' }
+      - { regexp: 'interfaces = lo INTERFACE_HOSTONLY', line: '        interfaces = lo {{ interface_lan }}:0' }
+      - { regexp: 'realm = DOMAIN2.DOMAIN', line: '        realm = {{ domain2 }}.DOMAIN' }
+      - { regexp: 'workgroup = DOMAIN2', line: '        workgroup = {{ domain2 }}' }
+      - { regexp: 'idmap config DOMAIN1:schema_mode = rfc2307', line: '        idmap config {{ domain1 }}:schema_mode = rfc2307' }
+      - { regexp: 'idmap config DOMAIN1:unix_nss_info = yes', line: '        idmap config {{ domain1 }}:unix_nss_info = yes' }
+      - { regexp: 'path = /work0/argon-infra/samba4/var/locks/sysvol/DOMAIN1.domain/scripts', line: '        path = /work0/argon-infra/samba4/var/locks/sysvol/{{ domain1 }}.domain/scripts' }
+    tags:
+    - after_provision
+
+  - name: SAMBA | Copy samba.service into /etc/systemd/system/
+    ansible.builtin.copy:
+      src: /usr/local/src/samba-4.11.17/bin/default/packaging/systemd/samba.service
+      dest: /etc/systemd/system/samba-ad-dc.service
+      owner: root
+      group: root
+      mode: '0644'
+    tags:
+    - after_provision
+    - secondary
+
+  - name: SAMBA | Create folder /work0/argon-infra/samba4/etc/sysconfig
+    ansible.builtin.file:
+      path: /work0/argon-infra/samba4/etc/sysconfig
+      state: directory
+      mode: '0755'
+    tags:
+    - after_provision
+
+  - name: SAMBA | Enable SAMBA SystemD Unit
+    ansible.builtin.shell:
+      cmd: sh -c 'echo SAMBAOPTIONS=\""-D\"" >/work0/argon-infra/samba4/etc/sysconfig/samba'
+    tags:
+    - after_provision
+
+  - name: OPERATING SYSTEM | Reload systemctl daemon
+    ansible.builtin.shell:
+      cmd: systemctl daemon-reload
+    tags:
+    - after_provision
+    - secondary
+
+  - name: SAMBA | Start service
+    ansible.builtin.service:
+      name: samba-ad-dc
+      state: started
+    tags:
+    - after_provision
+
+  - name: OPERATING SYSTEM | SAMBA audit /etc/rsyslog.conf
+    ansible.builtin.lineinfile:
+        path: /etc/rsyslog.conf
+        line: |
+          
+          local5.notice /var/log/samba/samba-full_audit.log
+        create: no
+    tags:
+    - after_provision
+    - secondary
+
+  - name: OPERATING SYSTEM | Restart rsyslog
+    ansible.builtin.service:
+      name: rsyslog
+      state: restarted
+    tags:
+    - after_provision
+    - secondary
+
+  - name: SAMBA | Testing wbinfo --ping-dc
+    ansible.builtin.debug:
+      msg: "{{ lookup('pipe', '/work0/argon-infra/samba4/bin/wbinfo --ping-dc') }}"
+    tags:
+      - test_provision
+
+  - name: SAMBA | Testing wbinfo -u
+    ansible.builtin.debug:
+      msg: "{{ lookup('pipe', '/work0/argon-infra/samba4/bin/wbinfo -u') }}"
+    tags:
+      - test_provision
+
+  - name: SAMBA | Testing host -t SRV _ldap._tcp.{{ domain1 }}.domain
+    ansible.builtin.debug:
+      msg: "{{ lookup('pipe', 'host -t SRV _ldap._tcp.{{ domain1 }}.domain') }}"
+    tags:
+      - test_provision
+
+  - name: SAMBA | Testing host -t SRV _kerberos._udp.{{ domain1 }}.domain
+    ansible.builtin.debug:
+      msg: "{{ lookup('pipe', 'host -t SRV _kerberos._udp.{{ domain1 }}.domain') }}"
+    tags:
+      - test_provision
+
+  - name: SAMBA | Testing host -t A servidor.{{ domain1 }}.domain
+    ansible.builtin.debug:
+      msg: "{{ lookup('pipe', 'host -t A servidor.{{ domain1 }}.domain') }}"
+    tags:
+      - test_provision
+...

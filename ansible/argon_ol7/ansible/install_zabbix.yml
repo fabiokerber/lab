@@ -1,0 +1,135 @@
+---
+- hosts: localhost
+  vars:
+    zbx_hostname: zbxprx-srv-<nome_cartorio>
+    ansible_python_interpreter: /usr/bin/python2.7
+    zabbix_packages:
+      - telnet
+      - zabbix-agent
+    container_packages:
+      - docker-engine
+      - containerd
+
+  tasks:
+
+  - name: OPERATIONAL SYSTEM | Yum enable addons
+    ansible.builtin.shell: 
+      cmd: yum-config-manager --enable *addons
+    tags:
+    - zabbix_proxy
+
+  - name: ZABBIX | Install container packages 
+    yum: 
+      name: "{{ container_packages }}" 
+      state: latest
+    tags:
+    - zabbix_proxy
+
+  - name: OPERATING SYSTEM | Start docker service
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: yes
+    tags:
+    - zabbix_proxy
+
+  - name: DOCKER | Pull image zabbix-proxy-sqlite3:centos-4.4-latest
+    ansible.builtin.shell: 
+      cmd: docker pull zabbix/zabbix-proxy-sqlite3:centos-4.4-latest
+    tags:
+    - zabbix_proxy
+
+  - name: DOCKER | Docker run zabbix container
+    ansible.builtin.shell: 
+      cmd: docker run --name zabbix-proxy --restart always --net=host -e ZBX_HOSTNAME={{ zbx_hostname }} -e TZ=America/Sao_Paulo -e ZBX_PROXYMODE=0 -e ZBX_SERVER_HOST=152.67.41.64 -e ZBX_SERVER_PORT=10051 -e ZBX_ENABLEREMOTECOMMANDS=1 -e ZBX_LOGREMOTECOMMANDS=1 -e ZBX_PROXYHEARTBEATFREQUENCY=10 -e ZBX_CONFIGFREQUENCY=1800 -e ZBX_TRAPPERTIMEOUT=3 -e ZBX_TLSCONNECT=psk -e ZBX_TLSACCEPT=psk -e ZBX_TLSPSKIDENTITY=ArgonInformaticaLtda -e ZBX_TLSPSKFILE=zabbix_proxy.psk -d zabbix/zabbix-proxy-sqlite3:centos-4.4-latest
+    tags:
+    - zabbix_proxy
+
+  - name: DOCKER | Docker exec zabbix container
+    ansible.builtin.shell: 
+      cmd: docker exec -i zabbix-proxy touch /var/lib/zabbix/enc/zabbix_proxy.psk
+    tags:
+    - zabbix_proxy
+
+  - name: DOCKER | Docker exec zabbix container
+    ansible.builtin.shell: 
+      cmd: docker exec -i zabbix-proxy chmod 644 /var/lib/zabbix/enc/zabbix_proxy.psk 
+    tags:
+    - zabbix_proxy
+
+  - name: DOCKER | Docker exec zabbix container
+    ansible.builtin.shell:  
+      cmd: docker exec -i zabbix-proxy bash -c "echo 'e5d2333cf6bb5830cbe41c17af779a298da15567a99094468e72ec082f1ce7ff' >> /var/lib/zabbix/enc/zabbix_proxy.psk"
+    tags:
+    - zabbix_proxy
+
+  - name: FIREWALL | Allow 10050/tcp
+    ansible.posix.firewalld:
+      port: 10050/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - zabbix_agent
+
+  - name: FIREWALL | Allow 10051/tcp
+    ansible.posix.firewalld:
+      port: 10051/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - zabbix_agent
+
+  - name: OPERATIONAL SYSTEM | Add zabbix 4.4.10 repo
+    ansible.builtin.shell: 
+      cmd: rpm -Uvh https://repo.zabbix.com/zabbix/4.4/rhel/7/x86_64/zabbix-agent-4.4.10-1.el7.x86_64.rpm
+    tags:
+    - zabbix_agent
+
+  - name: ZABBIX | Install zabbix packages 
+    yum: 
+      name: "{{ zabbix_packages }}" 
+      state: latest
+    tags:
+    - zabbix_agent
+
+  - name: OPERATING SYSTEM | Create folder /scripts
+    ansible.builtin.file:
+      path: /scripts
+      state: directory
+      mode: '0770'
+    tags:
+    - zabbix_agent
+
+  - name: OPERATIONAL SYSTEM | Git clone zabbix.git into /scripts
+    ansible.builtin.shell: 
+      cmd: git clone http://argon:wwyAmMo6HMsNXsbS6_t3@gitlab.argoninformatica.com.br:8929/infra/zabbix.git /scripts 
+    tags:
+    - zabbix_agent
+       
+  - name: ZABBIX | Edit /scripts
+    ansible.builtin.file:
+      path: /scripts
+      state: directory
+      recurse: yes
+      owner: root
+      group: zabbix
+      mode: '0700'
+    tags:
+    - zabbix_agent
+
+  - name: ZABBIX | Move /scripts/service_restart_* into /sbin/
+    ansible.builtin.shell:
+      cmd: mv /scripts/service_restart_* /sbin/ && chmod 777 /sbin/service_restart_*
+      warn: false
+    tags:
+    - zabbix_agent
+
+  - name: ZABBIX | Move /scripts/atualiza* into /sbin/
+    ansible.builtin.shell:
+      cmd: mv /scripts/atualiza* /sbin/ && chmod 777 /sbin/atualiza*
+      warn: false
+    tags:
+    - zabbix_agent
+...

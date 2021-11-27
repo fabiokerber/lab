@@ -1,0 +1,26 @@
+/var/log/argon/status_servidor/status_servidor.log {
+        rotate 30
+        daily
+        create
+        missingok
+        sharedscripts
+        prerotate
+        day=$(/bin/date -d "-1 day" +%d%m%Y)
+        /bin/mv /var/log/argon/status_servidor/status_servidor.log /var/log/argon/status_servidor/status_servidor-$day.log
+        /bin/gzip /var/log/argon/status_servidor/status_servidor-$day.log
+        endscript
+}
+
+/var/log/argon/bkpexterno/bkpexterno.log {
+        rotate 30
+        daily
+        create
+        missingok
+        sharedscripts
+        prerotate
+        day=$(/bin/date -d "-1 day" +%d%m%Y)
+        /bin/mv /var/log/argon/bkpexterno/bkpexterno.log /var/log/argon/bkpexterno/bkpexterno-$day.log
+        /bin/gzip /var/log/argon/bkpexterno/bkpexterno-$day.log
+        endscript
+}
+

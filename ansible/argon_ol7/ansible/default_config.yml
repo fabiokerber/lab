@@ -1,0 +1,411 @@
+---
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+    default_packages:
+      - unix2dos
+      - ntfs-3g
+      - htop
+      - lsb
+      - gdisk
+      - iptraf
+      - lshw
+      - nload
+      - nmap
+      - tree
+      - lm_sensors
+      - wget
+      - cyrus-sasl-plain
+      - mailx
+      - 'perl(Digest::HMAC_MD5)'
+      - 'perl(IO::Socket::SSL)'
+      - 'perl(Net::SSLeay)'
+
+  tasks:
+
+  - name: OPERATING SYSTEM | Install default packages 
+    yum: 
+      name: "{{ default_packages }}" 
+      state: latest
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Copy motd.sh into /etc/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/motd.sh
+      dest: /etc/motd.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Create symbolik link to /etc/systemd/system/poweroff.target 
+    ansible.builtin.file:
+      src: /lib/systemd/system/poweroff.target
+      dest: /etc/systemd/system/ctrl-alt-del.target
+      state: link
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Reload systemctl daemon
+    ansible.builtin.shell:
+      cmd: systemctl daemon-reload
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /root/.bash_profile
+    ansible.builtin.lineinfile:
+        path: /root/.bash_profile
+        line: |
+ 
+          /etc/motd.sh
+        create: no
+        mode: '0644'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /etc/bashrc
+    ansible.builtin.lineinfile:
+        path: /etc/bashrc
+        line: |
+ 
+          export LANG=pt_BR.UTF8
+        create: no
+        mode: '0644'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /etc/profile
+    ansible.builtin.lineinfile:
+        path: /etc/profile
+        line: |
+ 
+          export HISTTIMEFORMAT="%d/%m/%Y - %H:%M:%S - "
+          export HISTSIZE="5000"
+          export HISTFILESIZE="5000"
+
+          SAMBA_HOME=/work0/argon-infra/samba4
+          POSTGRES_HOME=/work0/argon-infra/pgsql11
+          PATH=$PATH:$POSTGRES_HOME/bin:$SAMBA_HOME/bin
+          export PATH POSTGRES_HOME SAMBA_HOME
+        create: no
+        mode: '0644'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /etc/rc.d/rc.local
+    ansible.builtin.lineinfile:
+        path: /etc/rc.d/rc.local
+        line: |
+ 
+          SAMBA_HOME=/work0/argon-infra/samba4
+          POSTGRES_HOME=/work0/argon-infra/pgsql11
+          PATH=$PATH:$POSTGRES_HOME/bin:$SAMBA_HOME/bin
+          export PATH POSTGRES_HOME SAMBA_HOME
+        create: no
+        mode: '0644'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /root/.vimrc
+    ansible.builtin.lineinfile:
+        path: /root/.vimrc
+        line: |
+          set number
+          set cursorcolumn
+          syntax on
+        create: yes
+        mode: '0644'
+    tags:
+    - default
+
+  - name: OPERATING SYSTEM | Edit /etc/cron.hourly/updatetime.sh
+    ansible.builtin.lineinfile:
+        path: /etc/cron.hourly/updatetime.sh
+        line: |
+          #!/bin/bash
+          /usr/sbin/ntpdate -u 0.br.pool.ntp.org
+        create: yes
+        mode: '0755'
+    tags:
+    - default
+
+  - name: POSTFIX | Edit /etc/postfix/main.cf
+    ansible.builtin.lineinfile:
+        path: /etc/postfix/main.cf
+        line: |
+
+          relayhost = [smtp.gmail.com]:587
+          smtp_use_tls = yes
+          smtp_sasl_auth_enable = yes
+          smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+          smtp_tls_CAfile = /etc/ssl/certs/ca-bundle.crt
+          smtp_sasl_security_options = noanonymous
+          smtp_sasl_tls_security_options = noanonymous
+
+          sender_canonical_classes = envelope_sender, header_sender
+          sender_canonical_maps =  regexp:/etc/postfix/sender_canonical_maps
+          smtp_header_checks = regexp:/etc/postfix/header_check
+        create: no
+        mode: '0644'
+    tags:
+    - primary
+    - secondary 
+
+  - name: POSTFIX | Edit /etc/posfix/main.cf (inet_protocols=ipv4)
+    ansible.builtin.shell:
+      cmd: postconf -e inet_protocols=ipv4
+    tags:
+    - primary
+    - secondary 
+
+  - name: POSTFIX | Edit /etc/postfix/sasl_passwd
+    ansible.builtin.lineinfile:
+        path: /etc/postfix/sasl_passwd
+        line: |
+          [smtp.gmail.com]:587 log.infra@argoninformatica.com.br:S3nh@1995
+        create: yes
+        mode: '0644'
+    tags:
+    - primary
+    - secondary
+
+  - name: POSTFIX | Edit /etc/postfix/sender_canonical_maps
+    ansible.builtin.lineinfile:
+        path: /etc/postfix/sender_canonical_maps
+        line: |
+          /.+/    log.infra@argoninformatica.com.br
+        create: yes
+        mode: '0644'
+    tags:
+    - primary
+    - secondary
+
+  - name: POSTFIX | Edit /etc/postfix/header_check
+    ansible.builtin.lineinfile:
+        path: /etc/postfix/header_check
+        line: |
+          /From:.*/ REPLACE From: Infra Argon
+        create: yes
+        mode: '0644'
+    tags:
+    - primary
+    - secondary
+
+  - name: POSTFIX | Execute postmap
+    ansible.builtin.shell:
+      cmd: postmap /etc/postfix/sasl_passwd
+    tags:
+    - primary
+    - secondary
+
+  - name: POSTFIX | Edit /etc/postfix/sasl_passwd
+    ansible.builtin.file:
+      path: /etc/postfix/sasl_passwd
+      owner: root
+      group: postfix
+      mode: '0640'
+    tags:
+    - primary
+    - secondary
+
+  - name: POSTFIX | Delete file /etc/postfix/sasl_passwd
+    ansible.builtin.file:
+      path: /etc/postfix/sasl_passwd
+      state: absent
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Restart and enable postfix service
+    ansible.builtin.service:
+      name: postfix
+      state: restarted
+      enabled: yes
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry backup-argonDB.sh
+    ansible.builtin.shell:
+      cmd: echo "00 20 * * 1-5 sh /work0/argon-infra/scripts/backup-argonDB.sh" >> /var/spool/cron/root 
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry backup-argonDB.sh
+    ansible.builtin.shell:
+      cmd: echo "00 14 * * 6 sh /work0/argon-infra/scripts/backup-argonDB.sh" >> /var/spool/cron/root
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry backup.sh
+    ansible.builtin.shell:
+      cmd: echo "00 22 * * 1-5 sh /work0/argon-infra/scripts/backup.sh" >> /var/spool/cron/root 
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry backup.sh
+    ansible.builtin.shell:
+      cmd: echo "00 15 * * 6 sh /work0/argon-infra/scripts/backup.sh" >> /var/spool/cron/root
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry badblock.sh
+    ansible.builtin.shell:
+      cmd: echo "00 14 * * 6 sh /sbin/badblock.sh" >> /var/spool/cron/root
+      warn: false
+    tags:
+    - primary
+    - secondary
+
+  - name: CRON | Create entry status-srv01-ha.sh
+    ansible.builtin.shell:
+      cmd: echo "0 8 * * * sh /sbin/status-srv01-ha.sh" >> /var/spool/cron/root
+      warn: false
+    tags:
+    - primary
+
+  - name: CRON | Create entry status-srv02-ha
+    ansible.builtin.shell:
+      cmd: echo "0 8 * * * sh /sbin/status-srv02-ha.sh" >> /var/spool/cron/root
+      warn: false
+    tags:
+    - secondary
+
+  - name: OPERATING SYSTEM | Copy backup.sh into /work0/argon-infra/scripts/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/backup.sh
+      dest: /work0/argon-infra/scripts/backup.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - primary
+
+  - name: OPERATING SYSTEM | Copy backup-argonDB.sh into /work0/argon-infra/scripts/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/backup-argonDB.sh
+      dest: /work0/argon-infra/scripts/backup-argonDB.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - primary
+
+  - name: OPERATING SYSTEM | Copy badblock.sh into /sbin/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/badblock.sh
+      dest: /sbin/badblock.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Copy status-srv01-ha.sh into /sbin/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/status-srv01-ha.sh
+      dest: /sbin/status-srv01-ha.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - primary
+
+  - name: OPERATING SYSTEM | Copy status-srv01-ha.sh into /sbin/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/status-srv02-ha.sh
+      dest: /sbin/status-srv02-ha.sh
+      owner: root
+      group: root
+      mode: '0755'
+    tags:
+    - secondary
+
+  - name: OPERATING SYSTEM | Create folder /var/log/argon/bkpexterno
+    ansible.builtin.file:
+      path: /var/log/argon/bkpexterno
+      state: directory
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Create folder /var/log/argon/bkpbanco
+    ansible.builtin.file:
+      path: /var/log/argon/bkpbanco
+      state: directory
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Create folder /var/log/argon/status_servidor
+    ansible.builtin.file:
+      path: /var/log/argon/status_servidor
+      state: directory
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Create folder /var/log/argon/badblock/discos
+    ansible.builtin.file:
+      path: /var/log/argon/badblock/discos
+      state: directory
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Create folder /backupDB/backupHDI/backup-argonDB/log
+    ansible.builtin.file:
+      path: /backupDB/backupHDI/backup-argonDB/log
+      state: directory
+      mode: '0755'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Edit /etc/logrotate.conf
+    ansible.builtin.lineinfile:
+      dest: /etc/logrotate.conf
+      state: present
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: '#compress', line: 'compress' }
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Copy argon into /etc/logrotate.d/
+    ansible.builtin.copy:
+      src: /root/pacotes_Linux_ol7/status/argon
+      dest: /etc/logrotate.d/argon
+      owner: root
+      group: root
+      mode: '0644'
+    tags:
+    - primary
+    - secondary
+
+  - name: OPERATING SYSTEM | Restart and enable rsyslog service
+    ansible.builtin.service:
+      name: rsyslog
+      state: restarted
+      enabled: yes
+    tags:
+    - primary
+    - secondary
+...

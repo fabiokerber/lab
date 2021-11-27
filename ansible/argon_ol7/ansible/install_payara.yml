@@ -1,0 +1,75 @@
+---
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+    java_packages:
+      - java-1.8.0-openjdk-headless
+
+  tasks:
+
+  - name: FIREWALL | Allow 8080/tcp
+    ansible.posix.firewalld:
+      port: 8080/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+
+  - name: FIREWALL | Allow 8181/tcp
+    ansible.posix.firewalld:
+      port: 8181/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+
+  - name: FIREWALL | Allow 4848/tcp
+    ansible.posix.firewalld:
+      port: 4848/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+
+  - name: PAYARA | Install java packages 
+    yum: 
+      name: "{{ java_packages }}" 
+      state: latest
+
+  - name: OPERATING SYSTEM | Create user payara
+    ansible.builtin.user:
+      name: payara
+      shell: /bin/bash
+
+  - name: PAYARA | Edit /work0/argon-infra/payara
+    ansible.builtin.file:
+      path: /work0/argon-infra/payara
+      state: directory
+      recurse: yes
+      owner: payara
+      group: payara
+      mode: '0755'
+
+  - name: PAYARA | Create file /etc/systemd/system/payara.service
+    ansible.builtin.lineinfile:
+        path: /etc/systemd/system/payara.service
+        line: |
+          [Unit]
+          Description = Payara Server v4.1
+          After = syslog.target network.target
+
+          [Service]
+          User=payara
+          ExecStart = /usr/bin/java -jar /work0/argon-infra/payara/glassfish/lib/client/appserver-cli.jar start-domain payaradomain
+          ExecStop = /usr/bin/java -jar /work0/argon-infra/payara/glassfish/lib/client/appserver-cli.jar stop-domain payaradomain
+          ExecReload = /usr/bin/java -jar /work0/argon-infra/payara/glassfish/lib/client/appserver-cli.jar restart-domain payaradomain
+          Type = forking
+
+          [Install]
+          WantedBy = multi-user.target
+        create: yes
+        owner: root
+        group: payara
+        mode: '0644'
+
+  - name: OPERATING SYSTEM | Reload systemctl daemon
+    ansible.builtin.shell:
+      cmd: systemctl daemon-reload
+...

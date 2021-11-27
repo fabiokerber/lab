@@ -1,0 +1,241 @@
+---
+- hosts: localhost
+  vars:
+    rede_cartorio: 192.168.0.*/24
+    ansible_python_interpreter: /usr/bin/python2.7
+    postgres_packages:
+      - "@Development Tools"
+      - gcc
+      - readline-devel
+      - zlib
+      - zlib-devel
+      - systemd-devel
+
+  tasks:
+
+  - name: FIREWALL | Allow 5432/tcp
+    ansible.posix.firewalld:
+      port: 5432/tcp
+      permanent: yes
+      immediate: yes
+      state: enabled
+    tags:
+    - before_makecheck
+   
+  - name: POSTGRES | Install postgres packages 
+    yum: 
+      name: "{{ postgres_packages }}" 
+      state: latest
+    tags:
+    - before_makecheck
+
+  - name: OPERATING SYSTEM | Create user postgres
+    ansible.builtin.user:
+      name: postgres
+      shell: /bin/bash
+    tags:
+    - before_makecheck
+
+  - name: CRON | Edit /etc/cron.weekly/postgreslogs.sh
+    ansible.builtin.lineinfile:
+        path: /etc/cron.weekly/postgreslogs.sh
+        line: |
+          #!/bin/bash
+          find /work0/argon-infra/pgsql11/data/pg_log/ -atime +91 -type f -delete
+        create: yes
+        mode: '0755'
+    tags:
+    - before_makecheck
+
+  - name: POSTGRES | Download and extract postgresql-11.2.tar.gz into /usr/local/src/
+    ansible.builtin.unarchive:
+      src: https://ftp.postgresql.org/pub/source/v11.2/postgresql-11.2.tar.gz
+      dest: /usr/local/src/
+      remote_src: yes
+    tags:
+    - before_makecheck
+
+  - name: POSTGRES | Setup POSTGRES into /work0/argon-infra/pgsql11
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/postgresql-11.2 && ./configure --with-systemd --prefix=/work0/argon-infra/pgsql11/
+    tags:
+    - before_makecheck
+
+  - name: POSTGRES | Compile POSTGRES into /work0/argon-infra/pgsql11
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/postgresql-11.2 && make
+    tags:
+    - before_makecheck
+
+  - name: POSTGRES | Install POSTGRES into /work0/argon-infra/pgsql11
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/postgresql-11.2 && make install
+    tags:
+    - before_initdb  
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data
+    ansible.builtin.file:
+      path: /work0/argon-infra/pgsql11/data
+      state: directory
+      recurse: yes
+      owner: postgres
+      group: postgres
+      mode: '0700'
+    tags:
+    - before_initdb
+
+  - name: POSTGRES | Insert network into pg_hba.conf
+    ansible.builtin.lineinfile:
+        path: /work0/argon-infra/pgsql11/data/pg_hba.conf 
+        line: |
+          
+          host    all             all             {{ rede_cartorio }}         trust
+        create: no
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (listen_addresses = '*')
+    ansible.builtin.shell:
+      cmd: sed -i "s|#listen_addresses = 'localhost'|listen_addresses = '*'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (port = 5432)
+    ansible.builtin.shell:
+      cmd: sed -i "s|#port = 5432|port = 5432|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (max_connections = 100)
+    ansible.builtin.shell:
+      cmd: sed -i "s|max_connections = 100|max_connections = 200|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (logging_collector = on)
+    ansible.builtin.shell:
+      cmd: sed -i "s|#logging_collector = off|logging_collector = on|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_directory = 'pg_log')
+    ansible.builtin.shell:
+      cmd: sed -i "s|#log_directory = 'log'|log_directory = 'pg_log'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_filename = 'postgresql-%Y-%m-%d.log')
+    ansible.builtin.shell:
+      cmd: sed -i "s|#log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'|log_filename = 'postgresql-%Y-%m-%d.log'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_rotation_age = 1d)
+    ansible.builtin.shell:
+      cmd: sed -i "s|#log_rotation_age = 1d|log_rotation_age = 1d|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_line_prefix = '%t %p %a %u %d %r')
+    ansible.builtin.shell:
+      cmd: sed -i "s|#log_line_prefix.*|log_line_prefix = '%t %p %a %u %d %r'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_statement = 'mod')
+    ansible.builtin.shell:
+      cmd: sed -i "s|#log_statement = 'none'|log_statement = 'mod'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (log_timezone = 'America/Sao_Paulo')
+    ansible.builtin.shell:
+      cmd: sed -i "s|log_timezone = 'Etc/GMT+3'|log_timezone = 'America/Sao_Paulo'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf (timezone = 'America/Sao_Paulo')
+    ansible.builtin.shell:
+      cmd: sed -i "s|timezone = 'Etc/GMT+3'|timezone = 'America/Sao_Paulo'|g" /work0/argon-infra/pgsql11/data/postgresql.conf
+      warn: false
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Create file /etc/systemd/system/postgresql.service
+    ansible.builtin.lineinfile:
+        path: /etc/systemd/system/postgresql.service
+        line: |
+          [Unit]
+          Description=PostgreSQL database server
+          Documentation=man:postgres(1)
+
+          [Service]
+          Type=notify
+          User=postgres
+          ExecStart=/work0/argon-infra/pgsql11/bin/postgres -D /work0/argon-infra/pgsql11/data
+          ExecReload=/bin/kill -HUP $MAINPID
+          KillMode=mixed
+          KillSignal=SIGINT
+          TimeoutSec=0
+
+          [Install]
+          WantedBy=multi-user.target
+        create: yes
+        owner: root
+        group: postgres
+        mode: '0644'
+    tags:
+    - before_pgadmin
+    - secondary
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/postgresql.conf
+    ansible.builtin.file:
+      path: /work0/argon-infra/pgsql11/data/postgresql.conf
+      owner: postgres
+      group: postgres
+      mode: '0600'
+    tags:
+    - before_pgadmin
+
+  - name: OPERATING SYSTEM | Reload systemctl daemon
+    ansible.builtin.shell:
+      cmd: systemctl daemon-reload
+    tags:
+    - before_pgadmin
+    - secondary
+
+  - name: POSTGRES | Start service
+    ansible.builtin.service:
+      name: postgresql
+      state: started
+    tags:
+    - before_pgadmin
+
+  - name: POSTGRES | Edit /work0/argon-infra/pgsql11/data/pg_hba.conf
+    ansible.builtin.lineinfile:
+      dest: /work0/argon-infra/pgsql11/data/pg_hba.conf
+      state: present
+      regexp: "{{ item.regexp }}"
+      line: "{{ item.line }}"
+    with_items:
+      - { regexp: 'host    all             all             {{ rede_cartorio }}         trust', line: 'host    all             all             {{ rede_cartorio }}         md5' }
+    tags:
+    - after_pgadmin
+
+  - name: POSTGRES | Restart service
+    ansible.builtin.service:
+      name: postgresql
+      state: restarted
+    tags:
+    - after_pgadmin
+...

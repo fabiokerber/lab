@@ -1,0 +1,78 @@
+---
+- hosts: localhost
+  vars:
+    ansible_python_interpreter: /usr/bin/python2.7
+    zfs_packages:
+      - zfs
+      - perl-core
+      - mbuffer
+      - gcc
+      - openssl-devel
+      - bzip2-devel
+      - libffi-devel 
+
+  tasks:
+
+  - name: ZFS | Install epel-zfs release
+    yum: 
+      name: http://download.zfsonlinux.org/epel/zfs-release.el7_9.noarch.rpm
+      state: latest
+
+  - name: ZFS | Install gpg key zfs
+    ansible.builtin.shell:
+      cmd: gpg --quiet --with-fingerprint /etc/pki/rpm-gpg/RPM-GPG-KEY-zfsonlinux
+
+  - name: ZFS | YUM --disable zfs
+    ansible.builtin.shell:
+      cmd: yum-config-manager --disable zfs
+
+  - name: ZFS | YUM --enable zfs-kmod
+    ansible.builtin.shell:
+      cmd: yum-config-manager --enable zfs-kmod
+
+  - name: ZFS | Install zfs packages 
+    yum: 
+      name: "{{ zfs_packages }}" 
+      state: latest
+
+  - name: ZFS | Enable autostart
+    ansible.builtin.shell:
+      cmd: sh -c "echo zfs >/etc/modules-load.d/zfs.conf"
+
+  - name: ZFS | Start service
+    ansible.builtin.shell:
+      cmd: /sbin/modprobe zfs
+
+  - name: ZFS | Extract znapzend-0.20.0.tar.gz into /usr/local/src/
+    ansible.builtin.unarchive:
+      src: /root/pacotes_Linux_ol7/zfs/znapzend-0.20.0.tar.gz
+      dest: /usr/local/src/
+
+  - name: ZFS | Setup ZNAPZEND into /opt/znapzend-0.20.0
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/znapzend-0.20.0 && ./configure --prefix=/opt/znapzend-0.20.0
+
+  - name: ZFS | Compile ZNAPZEND into /opt/znapzend-0.20.0
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/znapzend-0.20.0 && make
+
+  - name: ZFS | Install ZNAPZEND into /opt/znapzend-0.20.0
+    ansible.builtin.shell:
+      cmd: cd /usr/local/src/znapzend-0.20.0 && make install
+
+  - name: ZFS | Create symbolik link ZNAPZEND
+    ansible.builtin.shell:
+      cmd: for x in /opt/znapzend-0.20.0/bin/*; do ln -s $x /usr/local/bin; done 
+
+  - name: ZNAPZEND | Copy znapzend.service into /etc/systemd/system
+    ansible.builtin.copy:
+      src: /usr/local/src/znapzend-0.20.0/init/znapzend.service
+      dest: /etc/systemd/system/znapzend.service
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: OPERATING SYSTEM | Reload systemctl daemon
+    ansible.builtin.shell:
+      cmd: systemctl daemon-reload
+...
