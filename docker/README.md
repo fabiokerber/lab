@@ -1,6 +1,6 @@
 # Zabbix #
 
-**Vagrant**
+**Vagrant + Docker**
 
 Check https://app.vagrantup.com/boxes/search
     https://app.vagrantup.com/ubuntu/boxes/focal64 (20.04 - focal)
@@ -12,11 +12,14 @@ Check https://app.vagrantup.com/boxes/search
 $ docker stop $(docker ps -q)
 $ docker container prune
 $ docker exec -it <container name> /bin/bash
+https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 ---
 
 $ sudo usermod -aG docker $(whoami)
 
 $ docker version
+
+**Zabbix**
 
 $ docker network create --driver bridge --subnet 172.20.0.0/16 --ip-range 172.20.240.0/20 zabbix-network
 
@@ -31,3 +34,5 @@ $ docker run --name zabbix-web-nginx-mysql -t -e ZBX_SERVER_HOST="zabbix-server-
 http://<IP>
     Admin
     zabbix
+
+**AWX**
