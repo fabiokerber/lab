@@ -5,6 +5,7 @@
 Check https://app.vagrantup.com/boxes/search<br>
     https://app.vagrantup.com/ubuntu/boxes/focal64 (20.04 - focal)
 
+```
 > vagrant up
 > vagrant ssh zabbix_srv
 
@@ -30,9 +31,11 @@ $ docker run --name zabbix-java-gateway -t --network=zabbix-network --restart un
 $ docker run --name zabbix-server-mysql -t -e DB_SERVER_HOST="mysql-server" -e MYSQL_DATABASE="zabbixdb" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="H9W&n#Iv" -e MYSQL_ROOT_PASSWORD="UCxV*rR&" -e ZBX_JAVAGATEWAY="zabbix-java-gateway" --network=zabbix-network -p 10051:10051 --restart unless-stopped -d zabbix/zabbix-server-mysql:alpine-5.4-latest
 
 $ docker run --name zabbix-web-nginx-mysql -t -e ZBX_SERVER_HOST="zabbix-server-mysql" -e DB_SERVER_HOST="mysql-server" -e MYSQL_DATABASE="zabbixdb" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="H9W&n#Iv" -e MYSQL_ROOT_PASSWORD="UCxV*rR&" --network=zabbix-network -p 80:8080 --restart unless-stopped -d zabbix/zabbix-web-nginx-mysql:alpine-5.4-latest
+```
 
 http://<IP>
     Admin
     zabbix
+
 
 **AWX**
