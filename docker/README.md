@@ -2,7 +2,7 @@
 
 **Vagrant + Docker**
 
-Check https://app.vagrantup.com/boxes/search
+Check https://app.vagrantup.com/boxes/search<br>
     https://app.vagrantup.com/ubuntu/boxes/focal64 (20.04 - focal)
 
 > vagrant up
