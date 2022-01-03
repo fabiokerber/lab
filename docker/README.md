@@ -11,6 +11,7 @@ Check https://app.vagrantup.com/boxes/search
 ---
 $ docker stop $(docker ps -q)
 $ docker container prune
+$ docker exec -it <container name> /bin/bash
 ---
 
 $ sudo usermod -aG docker $(whoami)
