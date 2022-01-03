@@ -19,9 +19,11 @@ https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 $ sudo usermod -aG docker $(whoami)
 
 $ docker version
+```
 
 **Zabbix**
 
+```
 $ docker network create --driver bridge --subnet 172.20.0.0/16 --ip-range 172.20.240.0/20 zabbix-network
 
 $ docker run --name mysql-server -t -e MYSQL_DATABASE="zabbixdb" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="H9W&n#Iv" -e MYSQL_ROOT_PASSWORD="UCxV*rR&" --network=zabbix-network -d mysql:8.0 --character-set-server=utf8 --collation-server=utf8_bin --default-authentication-plugin=mysql_native_password
