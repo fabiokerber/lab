@@ -14,6 +14,7 @@ $ docker stop $(docker ps -q)
 $ docker container prune
 $ docker exec -it <container name> /bin/bash
 https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
+https://hub.docker.com/r/zabbix/zabbix-agent
 ---
 
 $ sudo usermod -aG docker $(whoami)
@@ -33,11 +34,12 @@ $ docker run --name zabbix-java-gateway -t --network=zabbix-network --restart un
 $ docker run --name zabbix-server-mysql -t -e DB_SERVER_HOST="mysql-server" -e MYSQL_DATABASE="zabbixdb" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="H9W&n#Iv" -e MYSQL_ROOT_PASSWORD="UCxV*rR&" -e ZBX_JAVAGATEWAY="zabbix-java-gateway" --network=zabbix-network -p 10051:10051 --restart unless-stopped -d zabbix/zabbix-server-mysql:alpine-5.4-latest
 
 $ docker run --name zabbix-web-nginx-mysql -t -e ZBX_SERVER_HOST="zabbix-server-mysql" -e DB_SERVER_HOST="mysql-server" -e MYSQL_DATABASE="zabbixdb" -e MYSQL_USER="zabbix" -e MYSQL_PASSWORD="H9W&n#Iv" -e MYSQL_ROOT_PASSWORD="UCxV*rR&" --network=zabbix-network -p 80:8080 --restart unless-stopped -d zabbix/zabbix-web-nginx-mysql:alpine-5.4-latest
+
+$ docker run --name zabbix-agent -e ZBX_HOSTNAME="Zabbix server" -e ZBX_SERVER_HOST="172.20.240.3" -e ZBX_LISTENPORT=10050 --network=zabbix-network -p 10050:10050 -d zabbix/zabbix-agent:alpine-5.4-latest
 ```
 
-http://<IP>
-    Admin
+http://IP<br>
+    Admin<br>
     zabbix
-
 
 **AWX**
