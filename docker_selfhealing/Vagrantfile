@@ -11,7 +11,7 @@ Vagrant.configure('2') do |config|
         zabbix_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
         zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get update'
         zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get install docker-ce -y'
-        zabbix_srv.vm.provision 'shell', inline: 'sudo curl -L https://github.com/docker/compose/releases/download/2.2.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
         zabbix_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
 
         zabbix_srv.vm.provider 'virtualbox' do |vb|

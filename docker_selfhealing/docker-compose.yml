@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+
+  mysql-server:
+    build:
+      dockerfile: ./dockerfile/mysql-server.dockerfile
+      context: .
+    image: mysql:8.0
+    container_name: mysql-server
+    networks:
+      - zabbix-network
+
+  zabbix-java-gateway:
+#    build:
+#      dockerfile: ./docker/zabbix-java-gateway.dockerfile
+#      context: .
+    image: zabbix-java-gateway:alpine-5.4-latest
+    restart: unless-stopped
+    container_name: zabbix-java-gateway
+    networks:
+      - zabbix-network
+
+networks:
+  zabbix-network:
+    driver: bridge
