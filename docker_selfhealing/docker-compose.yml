@@ -2,6 +2,7 @@ version: '3'
 services:
 
   mysql-server:
+    profiles: [zabbix]
     build:
       dockerfile: ./dockerfile/mysql-server.dockerfile
       context: .
@@ -11,6 +12,7 @@ services:
       - zabbix-network
 
   zabbix-java-gateway:
+    profiles: [zabbix]
     image: zabbix/zabbix-java-gateway:alpine-5.4-latest
     restart: unless-stopped
     container_name: zabbix-java-gateway
@@ -20,6 +22,7 @@ services:
       - mysql-server
 
   zabbix-server-mysql:
+    profiles: [zabbix]
     build:
       dockerfile: ./dockerfile/zabbix-server-mysql.dockerfile
       context: .
@@ -34,6 +37,7 @@ services:
       - mysql-server
 
   zabbix-web-nginx-mysql:
+    profiles: [zabbix]
     build:
       dockerfile: ./dockerfile/zabbix-web-nginx-mysql.dockerfile
       context: .

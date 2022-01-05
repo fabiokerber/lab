@@ -23,6 +23,7 @@ $ exit
 > vagrant ssh zabbix_srv
 
 $ docker version
+$ docker-compose --version
 ```
 
 **Zabbix (docker run)**
@@ -41,12 +42,13 @@ $ docker run --name zabbix-web-nginx-mysql -t -e ZBX_SERVER_HOST="zabbix-server-
 $ docker run --name zabbix-agent -e ZBX_HOSTNAME="Zabbix server" -e ZBX_SERVER_HOST="172.20.240.3" -e ZBX_LISTENPORT=10050 --network=zabbix-network -p 10050:10050 -d zabbix/zabbix-agent:alpine-5.4-latest
 ```
 
-**Zabbix (docker run)**
+
+**Zabbix (docker compose)**
 
 ```
 $ docker-compose build
-
-$ docker-compose up -d
+$ docker-compose --profile zabbix up -d
+$ watch docker ps
 ```
 
 http://IP<br>
