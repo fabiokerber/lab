@@ -18,6 +18,9 @@ http://IP_zabbix_srv<br>
 $ docker version
 $ docker-compose --version
 
+!!! Verificar possibilidade de montar essa pasta em um disco adicional !!!
+    zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir /zabbixdb'
+
 ---
 $ docker stop $(docker ps -q)
 $ docker container prune

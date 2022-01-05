@@ -8,6 +8,8 @@ services:
       context: .
     image: mysql:8.0
     container_name: mysql-server
+    volumes:
+      - "/home/vagrant/zabbixdb:/var/lib/mysql/"
     networks:
       - zabbix-network
 

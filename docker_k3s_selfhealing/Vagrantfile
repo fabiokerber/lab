@@ -1,3 +1,5 @@
+file_to_disk = './tmp/large_disk.vdi'
+
 Vagrant.configure('2') do |config|
     config.vm.box = 'ubuntu/focal64'
 
@@ -16,6 +18,7 @@ Vagrant.configure('2') do |config|
         zabbix_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
         zabbix_srv.vm.provision 'shell', inline: 'cd /vagrant && sudo docker-compose build'
         zabbix_srv.vm.provision 'shell', inline: 'sudo docker-compose -f /vagrant/docker-compose.yml --profile zabbix up -d'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir -p /home/vagrant/zabbixdb'
 
         zabbix_srv.vm.provider 'virtualbox' do |vb|
             vb.memory = 4096
@@ -27,7 +30,7 @@ Vagrant.configure('2') do |config|
 
     end
 
-    config.vm.define 'awx_srv' do |zabbix_srv|
+    config.vm.define 'awx_srv' do |awx_srv|
 
         awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
 #        zabbix_srv.vm.network 'forwarded_port', guest: 80, host:80
