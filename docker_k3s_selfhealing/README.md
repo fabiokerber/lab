@@ -1,3 +1,10 @@
+Pré requisito:
+
+|Tool    |Link|
+|-------------|-----------|
+|`Vagrant`| https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_x86_64.msi
+|`VirtualBox`| https://download.virtualbox.org/virtualbox/6.1.30/VirtualBox-6.1.30-148432-Win.exe
+
 # Zabbix #
 
 ```
@@ -10,7 +17,7 @@
 http://IP_zabbix_srv<br>
     Admin<br>
     zabbix
-
+---
 !!! Checar versão docker!!!
 
 > vagrant ssh zabbix_srv
@@ -21,13 +28,18 @@ $ docker-compose --version
 !!! Verificar possibilidade de montar essa pasta em um disco adicional !!!
     zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir /zabbixdb'
 
----
 $ docker stop $(docker ps -q)
 $ docker container prune
 $ docker exec -it <container name> /bin/bash
 https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 https://hub.docker.com/r/zabbix/zabbix-agent
 ---
+```
+
+# AWX #
+
+```
+
 ```
 
 **Zabbix (docker run)**
@@ -49,5 +61,3 @@ $ docker-compose build
 $ docker-compose --profile zabbix up -d
 $ watch docker ps
 ```
-
-# AWX #
