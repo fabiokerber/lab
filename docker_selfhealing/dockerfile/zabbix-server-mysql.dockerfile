@@ -1,8 +1,8 @@
-FROM zabbix-server-mysql:alpine-5.4-latest
+FROM zabbix/zabbix-server-mysql:alpine-5.4-latest
 ENV DB_SERVER_HOST=mysql-server
 ENV MYSQL_DATABASE=zabbixdb
 ENV MYSQL_USER=zabbix
 ENV MYSQL_PASSWORD=H9W&n#Iv
 ENV MYSQL_ROOT_PASSWORD=UCxV*rR&
 ENV ZBX_JAVAGATEWAY=zabbix-java-gateway
-EXPOSE 10051 10051
+EXPOSE 10051
