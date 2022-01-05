@@ -12,12 +12,29 @@ services:
       - zabbix-network
 
   zabbix-java-gateway:
-#    build:
-#      dockerfile: ./docker/zabbix-java-gateway.dockerfile
-#      context: .
     image: zabbix-java-gateway:alpine-5.4-latest
     restart: unless-stopped
     container_name: zabbix-java-gateway
+    networks:
+      - zabbix-network
+
+  zabbix-server-mysql:
+    build:
+      dockerfile: ./dockerfile/zabbix-server-mysql.dockerfile
+      context: .
+    image: zabbix-server-mysql:alpine-5.4-latest
+    restart: unless-stopped
+    container_name: zabbix-server-mysql
+    networks:
+      - zabbix-network
+
+  zabbix-web-nginx-mysql:
+    build:
+      dockerfile: ./dockerfile/zabbix-web-nginx-mysql.dockerfile
+      context: .
+    image: zabbix-web-nginx-mysql:alpine-5.4-latest
+    restart: unless-stopped
+    container_name: zabbix-web-nginx-mysql
     networks:
       - zabbix-network
 
