@@ -1,0 +1,80 @@
+Vagrant.configure('2') do |config|
+    config.vm.box = 'ubuntu/focal64'
+
+    config.vm.define 'zabbix_srv' do |zabbix_srv|
+
+        zabbix_srv.vm.hostname = 'zabbix-srv'
+        zabbix_srv.vm.network 'public_network', ip: '192.168.0.50', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+        zabbix_srv.vm.network 'forwarded_port', guest: 80, host:80
+        zabbix_srv.vm.network 'forwarded_port', guest: 10051, host:10051
+
+        zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get install docker-ce -y'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
+        zabbix_srv.vm.provision 'shell', inline: 'cd /vagrant && sudo docker-compose build'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo docker-compose -f /vagrant/docker-compose.yml --profile zabbix up -d'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir -p /home/vagrant/zabbixdb'
+
+        zabbix_srv.vm.provider 'virtualbox' do |vb|
+            vb.memory = 4096
+            vb.cpus = 4
+            vb.name = 'zabbix_srv'
+            vb.customize ['modifyvm', :id, '--nicpromisc2', 'allow-all']
+
+        end
+
+    end
+
+    config.vm.define 'awx_srv' do |awx_srv|
+
+        awx_srv.vm.hostname = 'awx-srv'
+        awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+        awx_srv.vm.network 'forwarded_port', guest: 80, host:80
+
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y python3-pip'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install --upgrade pip && pip3 install --upgrade setuptools'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install setuptools_rust wheel && sudo pip3 install ansible'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip install boto && pip install boto3'
+        awx_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+        awx_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install docker-ce -y'
+        awx_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+        awx_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
+        awx_srv.vm.provision 'shell', inline: 'cd /vagrant && sudo docker-compose build'
+        awx_srv.vm.provision 'shell', inline: 'mkdir -p /tmp/git && git clone -b 17.0.1 https://github.com/ansible/awx.git /tmp/git'
+
+#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install build-essential -y'
+#        awx_srv.vm.provision 'shell', inline: 'sudo curl -sfL https://get.k3s.io | sh -'
+#        awx_srv.vm.provision 'shell', inline: 'mkdir -p /tmp/awx'
+#        awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/awx/awx.tar.gz /tmp/awx/'
+#        awx_srv.vm.provision 'shell', inline: 'sudo tar -zxvf /tmp/awx/awx.tar.gz -C /tmp/awx'
+
+#############################
+## COMANDOS
+## sudo su
+## export NAMESPACE=default
+## cd /tmp/awx/awx-operator/ && sudo make deploy
+## kubectl get pods
+## kubectl get events -w
+## kubectl get services
+#############################
+
+        awx_srv.vm.provider 'virtualbox' do |vb|
+            vb.memory = 8192
+            vb.cpus = 4
+            vb.name = 'awx_srv'
+            vb.customize ['modifyvm', :id, '--nicpromisc2', 'allow-all']
+
+        end
+
+    end
+
+end
