@@ -1,8 +1,8 @@
 Vagrant.configure('2') do |config|
-    config.vm.box = 'ubuntu/focal64'
 
     config.vm.define 'zabbix_srv' do |zabbix_srv|
 
+        zabbix_srv.vm.box = 'ubuntu/focal64'
         zabbix_srv.vm.hostname = 'zabbix-srv'
         zabbix_srv.vm.network 'public_network', ip: '192.168.0.50', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
         zabbix_srv.vm.network 'forwarded_port', guest: 80, host:80
@@ -16,8 +16,8 @@ Vagrant.configure('2') do |config|
         zabbix_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
         zabbix_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
         zabbix_srv.vm.provision 'shell', inline: 'cd /vagrant && sudo docker-compose build'
-        zabbix_srv.vm.provision 'shell', inline: 'sudo docker-compose -f /vagrant/docker-compose.yml --profile zabbix up -d'
         zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir -p /home/vagrant/zabbixdb'
+        zabbix_srv.vm.provision 'shell', inline: 'sudo docker-compose -f /vagrant/docker-compose.yml --profile zabbix up -d'
 
         zabbix_srv.vm.provider 'virtualbox' do |vb|
             vb.memory = 4096
@@ -31,11 +31,13 @@ Vagrant.configure('2') do |config|
 
     config.vm.define 'awx_srv' do |awx_srv|
 
+        awx_srv.vm.box = 'centos/7'
         awx_srv.vm.hostname = 'awx-srv'
         awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
         awx_srv.vm.network 'forwarded_port', guest: 80, host:80
 
-        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+############################# OLD UBUNTU #############################
+#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
 #        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y python3-pip'
 #        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev python3-testresources python3-docker'
 #        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install --upgrade pip && pip3 install --upgrade setuptools'
@@ -60,7 +62,6 @@ Vagrant.configure('2') do |config|
 #        awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/awx/awx.tar.gz /tmp/awx/'
 #        awx_srv.vm.provision 'shell', inline: 'sudo tar -zxvf /tmp/awx/awx.tar.gz -C /tmp/awx'
 
-#############################
 ## COMANDOS
 ## sudo su
 ## export NAMESPACE=default
@@ -68,7 +69,8 @@ Vagrant.configure('2') do |config|
 ## kubectl get pods
 ## kubectl get events -w
 ## kubectl get services
-#############################
+
+######################################################################
 
         awx_srv.vm.provider 'virtualbox' do |vb|
             vb.memory = 8192
