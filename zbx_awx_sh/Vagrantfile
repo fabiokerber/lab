@@ -31,46 +31,33 @@ Vagrant.configure('2') do |config|
 
     config.vm.define 'awx_srv' do |awx_srv|
 
-        awx_srv.vm.box = 'centos/7'
+        awx_srv.vm.box = 'ubuntu/focal64'
         awx_srv.vm.hostname = 'awx-srv'
         awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
         awx_srv.vm.network 'forwarded_port', guest: 80, host:80
 
-############################# OLD UBUNTU #############################
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y python3-pip'
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev python3-testresources python3-docker'
-#        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install --upgrade pip && pip3 install --upgrade setuptools'
-#        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install setuptools_rust wheel && sudo pip3 install ansible && pip3 install docker-compose'
-#        awx_srv.vm.provision 'shell', inline: 'sudo pip install boto && pip install boto3'
-#        awx_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
-#        awx_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install docker-ce -y'
-#        awx_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
-#        awx_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
-#        awx_srv.vm.provision 'shell', inline: 'cd /vagrant && sudo docker-compose build'
-#        awx_srv.vm.provision 'shell', inline: 'sudo mkdir -p /tmp/git && git clone -b 17.0.1 https://github.com/ansible/awx.git /tmp/git'
-#        awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/awx/inventory /tmp/git/installer/'
-#        awx_srv.vm.provision 'shell', inline: 'sudo mkdir -p /var/lib/awx/projects/'
-#        awx_srv.vm.provision 'shell', inline: 'sudo ansible-playbook -i /tmp/git/installer/inventory /tmp/git/installer/install.yml'
-
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
-#        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install build-essential -y'
-#        awx_srv.vm.provision 'shell', inline: 'sudo curl -sfL https://get.k3s.io | sh -'
-#        awx_srv.vm.provision 'shell', inline: 'mkdir -p /tmp/awx'
-#        awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/awx/awx.tar.gz /tmp/awx/'
-#        awx_srv.vm.provision 'shell', inline: 'sudo tar -zxvf /tmp/awx/awx.tar.gz -C /tmp/awx'
-
-## COMANDOS
-## sudo su
-## export NAMESPACE=default
-## cd /tmp/awx/awx-operator/ && sudo make deploy
-## kubectl get pods
-## kubectl get events -w
-## kubectl get services
-
-######################################################################
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y python3-pip'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y build-essential libssl-dev libffi-dev python3-dev python3-testresources python3-docker unzip'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install --upgrade pip && sudo pip3 install --upgrade setuptools'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install setuptools_rust wheel && sudo pip3 install ansible && sudo pip3 install docker-compose'
+        awx_srv.vm.provision 'shell', inline: 'sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -'
+        awx_srv.vm.provision 'shell', inline: 'sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt-get install docker-ce -y'
+        awx_srv.vm.provision 'shell', inline: 'sudo usermod -aG docker $USER'
+        awx_srv.vm.provision 'shell', inline: 'sudo systemctl restart docker'
+        awx_srv.vm.provision 'shell', inline: 'sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose'
+        awx_srv.vm.provision 'shell', inline: 'sudo chmod +x /usr/local/bin/docker-compose'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt install -y ansible'
+        awx_srv.vm.provision 'shell', inline: 'sudo apt install -y nodejs npm'
+        awx_srv.vm.provision 'shell', inline: 'sudo npm install npm --global'
+        awx_srv.vm.provision 'shell', inline: 'sudo pip3 install docker-compose==1.29.2'
+        awx_srv.vm.provision 'shell', inline: 'sudo wget -O /tmp/17.1.0.zip https://github.com/ansible/awx/archive/17.1.0.zip'
+        awx_srv.vm.provision 'shell', inline: 'sudo unzip /tmp/17.1.0.zip -d /tmp'
+        awx_srv.vm.provision 'shell', inline: 'sudo rm -f /tmp/awx-17.1.0/installer/inventory'
+        awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/inventory /tmp/awx-17.1.0/installer/'
+        awx_srv.vm.provision 'shell', inline: 'sudo ansible-playbook -i /tmp/awx-17.1.0/installer/inventory /tmp/awx-17.1.0/installer/install.yml'
 
         awx_srv.vm.provider 'virtualbox' do |vb|
             vb.memory = 8192
