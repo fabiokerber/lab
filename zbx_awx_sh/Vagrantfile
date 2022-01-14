@@ -1,6 +1,7 @@
-## zabbix_srv ip
+## SETAR IP'S
 ZABBIX_IP = '192.168.0.50'
 AWX_IP = '192.168.0.100'
+INTERFACE_LAN = 'TP-Link Wireless MU-MIMO USB Adapter'
 
 Vagrant.configure('2') do |config|
 
@@ -8,7 +9,7 @@ Vagrant.configure('2') do |config|
 
         zabbix_srv.vm.box = 'ubuntu/focal64'
         zabbix_srv.vm.hostname = 'zabbix-srv'
-        zabbix_srv.vm.network 'public_network', ip: ZABBIX_IP, bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+        zabbix_srv.vm.network 'public_network', ip: ZABBIX_IP, bridge: INTERFACE_LAN
         zabbix_srv.vm.network 'forwarded_port', guest: 80, host:80
         zabbix_srv.vm.network 'forwarded_port', guest: 10051, host:10051
 
@@ -37,7 +38,7 @@ Vagrant.configure('2') do |config|
 
         awx_srv.vm.box = 'ubuntu/focal64'
         awx_srv.vm.hostname = 'awx-srv'
-        awx_srv.vm.network 'public_network', ip: AWX_IP, bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+        awx_srv.vm.network 'public_network', ip: AWX_IP, bridge: INTERFACE_LAN
         awx_srv.vm.network 'forwarded_port', guest: 80, host:80
 
         awx_srv.vm.provision 'shell', inline: 'sudo apt-get update'
@@ -62,12 +63,18 @@ Vagrant.configure('2') do |config|
         awx_srv.vm.provision 'shell', inline: 'sudo unzip /tmp/17.1.0.zip -d /tmp'
         awx_srv.vm.provision 'shell', inline: 'sudo rm -f /tmp/awx-17.1.0/installer/inventory'
         awx_srv.vm.provision 'shell', inline: 'sudo cp /vagrant/files/inventory /tmp/awx-17.1.0/installer/'
-        awx_srv.vm.provision 'shell', inline: 'sed -i "s|admin_password=password|admin_password=`(pwgen -N 1)`|g" /tmp/awx-17.1.0/installer/inventory'
-        awx_srv.vm.provision 'shell', inline: 'sed -i "s|secret_key=awxsecret|secret_key=`(pwgen -N 1 -s 30)`|g" /tmp/awx-17.1.0/installer/inventory'
+        awx_srv.vm.provision 'shell', inline: 'PASS=`(pwgen -N 1)`'
+        awx_srv.vm.provision 'shell', inline: 'sudo sed -i "s|admin_password=password|admin_password=`(echo $PASS)|g" /tmp/awx-17.1.0/installer/inventory'
+        awx_srv.vm.provision 'shell', inline: 'sudo sed -i "s|secret_key=awxsecret|secret_key=`(pwgen -N 1 -s 30)`|g" /tmp/awx-17.1.0/installer/inventory'
         awx_srv.vm.provision 'shell', inline: 'sudo mkdir -p /var/lib/awx/projects'
         awx_srv.vm.provision 'shell', inline: 'sudo ansible-playbook -i /tmp/awx-17.1.0/installer/inventory /tmp/awx-17.1.0/installer/install.yml'
         awx_srv.vm.provision 'shell', inline: 'sudo pip3 install ansible-tower-cli'
         awx_srv.vm.provision 'shell', inline: 'sudo apt-get install -y libjson-pp-perl jq'
+        awx_srv.vm.provision 'shell', inline: 'sudo tower-cli config verify_ssl false'
+        awx_srv.vm.provision 'shell', inline: 'sudo tower-cli config host http://awx-srv'
+        awx_srv.vm.provision 'shell', inline: 'sudo tower-cli config username admin'
+        awx_srv.vm.provision 'shell', inline: 'sudo tower-cli config password `(echo $PASS)`'
+        awx_srv.vm.provision 'shell', inline: 'unset PASS'
 
         awx_srv.vm.provider 'virtualbox' do |vb|
             vb.memory = 8192

@@ -9,22 +9,23 @@ Pré requisito:
 
 ```
 !!! Edit Vagrantfile !!!
-
-    zabbix_srv.vm.network 'public_network', ip: '192.168.0.50', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
-    awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+    ## SETAR IP'S
+    ZABBIX_IP = '192.168.0.50'
+    AWX_IP = '192.168.0.100'
+    INTERFACE_LAN = 'TP-Link Wireless MU-MIMO USB Adapter'
 
 > vagrant up zabbix_srv
 
-http://IP_zabbix_srv<br>
+http://ZABBIX_IP<br>
     Admin<br>
     zabbix
 
-> vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password'
 > vagrant up awx_srv
+> vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password'
 
-http://IP_awx_srv<br>
-    awx<br>
-    password
+http://AWX_IP<br>
+    admin<br>
+    "admin_password"
 ---
 
 AWX cli
