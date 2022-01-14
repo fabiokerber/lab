@@ -11,19 +11,19 @@ Pré requisito:
 !!! Edit Vagrantfile !!!
 
     zabbix_srv.vm.network 'public_network', ip: '192.168.0.50', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
+    awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
 
-> vagrant up
+> vagrant up zabbix_srv
+> vagrant up awx_srv
 
 http://IP_zabbix_srv<br>
     Admin<br>
     zabbix
+
+http://IP_awx_srv<br>
+    awx<br>
+    password
 ---
-!!! Checar versão docker!!!
-
-> vagrant ssh zabbix_srv
-
-$ docker version
-$ docker-compose --version
 
 !!! Verificar possibilidade de montar essa pasta em um disco adicional !!!
     zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir /zabbixdb'
@@ -34,12 +34,6 @@ $ docker exec -it <container name> /bin/bash
 https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 https://hub.docker.com/r/zabbix/zabbix-agent
 ---
-```
-
-# AWX #
-
-```
-
 ```
 
 **Zabbix (docker run)**
