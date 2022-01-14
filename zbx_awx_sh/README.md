@@ -21,7 +21,8 @@ http://ZABBIX_IP<br>
     zabbix
 
 > vagrant up awx_srv
-> vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password'
+> vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password' (anotar!)
+> vagrant ssh awx_srv -c 'sudo tower-cli config | grep password' (anotar!)
 
 http://AWX_IP<br>
     admin<br>
