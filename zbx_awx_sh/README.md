@@ -14,11 +14,13 @@ Pré requisito:
     awx_srv.vm.network 'public_network', ip: '192.168.0.100', bridge: 'TP-Link Wireless MU-MIMO USB Adapter'
 
 > vagrant up zabbix_srv
-> vagrant up awx_srv
 
 http://IP_zabbix_srv<br>
     Admin<br>
     zabbix
+
+> vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password'
+> vagrant up awx_srv
 
 http://IP_awx_srv<br>
     awx<br>
