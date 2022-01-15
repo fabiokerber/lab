@@ -117,6 +117,8 @@ http://192.168.0.100/api/v2/job_templates/11/launch/
 ```
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221639.jpg">
+</kbd>
+<kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221641.jpg">
 </kbd>
 <br />
