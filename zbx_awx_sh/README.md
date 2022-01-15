@@ -87,7 +87,9 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 . Criar template b(Survey: On - Answer variable name: host_name - Maximum length: 20)<br>
 
 **POSTMAN - GET - Info execução template 9 "Update System".**<br>
-http://192.168.0.100/api/v2/job_templates/9/<br>
+```
+http://192.168.0.100/api/v2/job_templates/9/
+```
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
 </kbd>
@@ -95,7 +97,9 @@ http://192.168.0.100/api/v2/job_templates/9/<br>
 <br />
 
 **POSTMAN - POST - Acionamento template 9 "Update System".**<br>
-http://192.168.0.100/api/v2/job_templates/9/launch/<br>
+```
+http://192.168.0.100/api/v2/job_templates/9/launch/
+```
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221612.jpg">
 </kbd>
@@ -103,8 +107,9 @@ http://192.168.0.100/api/v2/job_templates/9/launch/<br>
 <br />
 
 **POSTMAN - POST - Acionamento template 9 "Update System".**<br>
-http://192.168.0.100/api/v2/job_templates/11/launch/<br>
 ```
+http://192.168.0.100/api/v2/job_templates/11/launch/
+
 {       "extra_vars":   {
             "host_name": "centos_srv01"
                         }
