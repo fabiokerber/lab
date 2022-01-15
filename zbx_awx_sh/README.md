@@ -5,7 +5,7 @@ Pré requisito:
 |`Vagrant`| https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_x86_64.msi
 |`VirtualBox`| https://download.virtualbox.org/virtualbox/6.1.30/VirtualBox-6.1.30-148432-Win.exe
 
-# Zabbix & AWX#
+# Zabbix & AWX #
 
 **Zabbix (docker run)**
 
@@ -35,7 +35,7 @@ $ watch docker ps
     CENTOS_SRV01 = '192.168.0.150'
     INTERFACE_LAN = 'TP-Link Wireless MU-MIMO USB Adapter'
 
-- ZABBIX -
+**- ZABBIX -**
 
 > vagrant up zabbix_srv
 
@@ -44,7 +44,7 @@ http://ZABBIX_IP<br>
     zabbix
 
 
-- AWX -
+**- AWX -**
 
 > vagrant up awx_srv
 > vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password' (anotar!)
@@ -57,7 +57,7 @@ http://AWX_IP<br>
     "admin_password"
 ---
 
-AWX cli
+**AWX cli**
 
 > vagrant ssh awx_srv
     $ tower-cli config
@@ -82,7 +82,7 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 . Criar projeto (Update System - Privilege Escalation: On)
 . Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)
 
-POSTMAN - Post template 9 "Update System".<br>
+**POSTMAN - Post template 9 "Update System".**<br>
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
 </kbd>
