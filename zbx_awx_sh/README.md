@@ -81,3 +81,10 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 . Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)
 . Criar projeto (Update System - Privilege Escalation: On)
 . Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)
+
+Entregas frequentes e com menor criticidadade.<br>
+<kbd>
+    <img src="https://github.com/fabiokerber/CI_CD/blob/main/img/030120221107.png">
+</kbd>
+<br />
+<br />
