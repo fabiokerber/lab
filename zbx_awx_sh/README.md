@@ -81,8 +81,10 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 . Criar credencial u: awx | p: awx_pass (Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)<br>
 . Criar inventario (Instance Groups: tower - Organization: Lab)<br>
 . Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)<br>
-. Criar projeto (Update System - Privilege Escalation: On)<br>
-. Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)<br>
+. Criar projeto a(Update System - Privilege Escalation: On)<br>
+. Criar projeto b(Install NGINX - Privilege Escalation: On)<br>
+. Criar template a<br>
+. Criar template b(Survey: On - Answer variable name: host_name - Maximum length: 20)<br>
 
 **POSTMAN - GET - Info execução template 9 "Update System".**<br>
 http://192.168.0.100/api/v2/job_templates/9/<br>
@@ -96,6 +98,21 @@ http://192.168.0.100/api/v2/job_templates/9/<br>
 http://192.168.0.100/api/v2/job_templates/9/launch/<br>
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221612.jpg">
+</kbd>
+<br />
+<br />
+
+**POSTMAN - POST - Acionamento template 9 "Update System".**<br>
+http://192.168.0.100/api/v2/job_templates/11/launch/<br>
+```
+{       "extra_vars":   {
+            "host_name": "centos_srv01"
+                        }
+}
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221639.jpg">
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221641.jpg">
 </kbd>
 <br />
 <br />
