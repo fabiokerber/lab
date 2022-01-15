@@ -125,6 +125,7 @@ http://192.168.0.100/api/v2/job_templates/11/launch/
 <br />
 
 **POSTMAN - POST - Acionamento template 9 sem Extra Vars "Install NGINX".**
+Obs: Não houve acionamento no AWX.<br>
 ```
 http://192.168.0.100/api/v2/job_templates/11/launch/
 ```
