@@ -82,9 +82,9 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 . Criar projeto (Update System - Privilege Escalation: On)
 . Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)
 
-Entregas frequentes e com menor criticidadade.<br>
+POSTMAN - Post template 9 "Update System".<br>
 <kbd>
-    <img src="https://github.com/fabiokerber/CI_CD/blob/main/img/030120221107.png">
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
 </kbd>
 <br />
 <br />
