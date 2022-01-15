@@ -106,7 +106,7 @@ http://192.168.0.100/api/v2/job_templates/9/launch/
 <br />
 <br />
 
-**POSTMAN - POST - Acionamento template 9 "Update System".**
+**POSTMAN - POST - Acionamento template 9 com Extra Vars "Install NGINX".**
 ```
 http://192.168.0.100/api/v2/job_templates/11/launch/
 
@@ -120,6 +120,16 @@ http://192.168.0.100/api/v2/job_templates/11/launch/
 </kbd>
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221641.jpg">
+</kbd>
+<br />
+<br />
+
+**POSTMAN - POST - Acionamento template 9 sem Extra Vars "Install NGINX".**
+```
+http://192.168.0.100/api/v2/job_templates/11/launch/
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221651.jpg">
 </kbd>
 <br />
 <br />
