@@ -92,6 +92,7 @@ Vagrant.configure('2') do |config|
         centos_srv01.vm.network 'public_network', ip: CENTOS_SRV01, bridge: INTERFACE_LAN
 
         centos_srv01.vm.provision 'shell', inline: 'sudo systemctl stop firewalld && sudo systemctl disable firewalld'
+        centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y jq'
         centos_srv01.vm.provision 'shell', inline: 'sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config && sudo setenforce 0'
         centos_srv01.vm.provision 'shell', inline: 'sudo useradd -p $(openssl passwd -1 awx_pass) awx'
         centos_srv01.vm.provision 'shell', inline: 'sudo usermod -a -G wheel awx'
