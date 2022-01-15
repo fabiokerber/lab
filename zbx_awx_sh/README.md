@@ -75,12 +75,12 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 
 **AWX**
 
-. Criar organizacao (Lab)
-. Criar credencial u: awx | p: awx_pass (Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)
-. Criar inventario (Instance Groups: tower - Organization: Lab)
-. Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)
-. Criar projeto (Update System - Privilege Escalation: On)
-. Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)
+. Criar organizacao (Lab)<br>
+. Criar credencial u: awx | p: awx_pass (Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)<br>
+. Criar inventario (Instance Groups: tower - Organization: Lab)<br>
+. Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)<br>
+. Criar projeto (Update System - Privilege Escalation: On)<br>
+. Criar template (Survey: On - Answer variable name: host_name - Maximum length: 20)<br>
 
 **POSTMAN - Post template 9 "Update System".**<br>
 <kbd>
