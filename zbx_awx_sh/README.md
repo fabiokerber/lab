@@ -60,8 +60,11 @@ http://AWX_IP
 
 # ZABBIX #
 
+. Configurar TimeZone Administration > General > GUI
 . Configurar TimeZone User Settings > Profile
 . Zabbix Server > Remover template Zabbix Agent > Unlink and Clear
+. Importar zbx_templates 
+. Aplicar novos templates aos hosts
 
 # AWX #
 
@@ -71,8 +74,8 @@ http://AWX_IP
 . Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)<br>
 . Criar projeto a(Update System - Privilege Escalation: On)<br>
 . Criar projeto b(Install NGINX - Privilege Escalation: On)<br>
-. Criar template a<br>
-. Criar template b(Survey: On - Answer variable name: hostname - Maximum length: 20)<br>
+. Criar template a(Variables: Prompt on launch - Limit: Prompt on launch)
+. Criar template b(Variables: Prompt on launch - Limit: Prompt on launch)<br>
 
 **POSTMAN - GET - Info execução template 9 "Update System".**
 ```
@@ -139,8 +142,7 @@ https://github.com/ansible/ansible/issues/37702 (fonte)
 
 > vagrant ssh centos_srv01
     $ curl -H "Content-Type: application/json" -X POST -s -u admin:madoov4T -k http://192.168.0.100/api/v2/job_templates/9/launch/ | jq '.url'
-    $ curl -H "Content-Type: application/json" -X POST -s -u admin:madoov4T -d '{ "extra_vars": { "hostname": "centos_srv01"}}' -k http://192.168.0.100/api/v2/job_templates/11/launch/ | jq '.url'
-    $ curl -H "Content-Type: application/json" -X POST -s -u admin:madoov4T -d '{ "extra_vars": { "hostname": "centos_srv01", "exec_command": "df -hP"}}' -k http://192.168.0.100/api/v2/job_templates/11/launch/ | jq '.url' (validar)
+    $ curl -H "Content-Type: application/json" -X POST -s -u admin:ei4meiZo -d '{ "limit": "192.168.0.150", "extra_vars": { "service": "nginx" }}' -k http://192.168.0.100/api/v2/job_templates/10/launch/ | jq '.url' (limit e extra vars)
 ```
 
 # Backup #
