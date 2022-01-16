@@ -13,6 +13,11 @@ Pré requisito:
 |`AWX`| v17.1.0
 |`Zabbix`| v5.4
 
+|VM    |Requirement|
+|-------------|-----------|
+|`Zabbix`| 4vCPU 4GB
+|`AWX`| 4vCPU 8GB
+|`Centos SRV01`| 2vCPU 1GB
 
 # Vagrant #
 ```
