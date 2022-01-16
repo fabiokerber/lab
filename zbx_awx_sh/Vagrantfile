@@ -11,7 +11,7 @@ Vagrant.configure('2') do |config|
         zabbix_srv.vm.box = 'ubuntu/focal64'
         zabbix_srv.vm.hostname = 'zabbix-srv'
         zabbix_srv.vm.network 'public_network', ip: ZABBIX_IP, bridge: INTERFACE_LAN
-        zabbix_srv.vm.network 'forwarded_port', guest: 80, host:80
+        zabbix_srv.vm.network 'forwarded_port', guest: 8080, host: 8080
         zabbix_srv.vm.network 'forwarded_port', guest: 10051, host:10051
 
         zabbix_srv.vm.provision 'shell', inline: 'sudo apt-get update'
@@ -90,14 +90,26 @@ Vagrant.configure('2') do |config|
         centos_srv01.vm.box = 'centos/7'
         centos_srv01.vm.hostname = 'centos-srv01'
         centos_srv01.vm.network 'public_network', ip: CENTOS_SRV01, bridge: INTERFACE_LAN
+        centos_srv01.vm.network 'forwarded_port', guest: 10050, host:10050
 
-        centos_srv01.vm.provision 'shell', inline: 'sudo systemctl stop firewalld && sudo systemctl disable firewalld'
-        centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y jq'
         centos_srv01.vm.provision 'shell', inline: 'sudo sed -i s/^SELINUX=.*$/SELINUX=permissive/ /etc/selinux/config && sudo setenforce 0'
+        centos_srv01.vm.provision 'shell', inline: 'sudo systemctl stop firewalld && sudo systemctl disable firewalld'
+        centos_srv01.vm.provision 'shell', inline: 'sudo rpm -Uvh https://repo.zabbix.com/zabbix/5.4/rhel/7/x86_64/zabbix-release-5.4-1.el7.noarch.rpm'
+        centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y zabbix-agent'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|# LogFileSize=1|AllowKey=system.run[*]|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|LogFileSize=0|LogFileSize=2|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|# LogRemoteCommands=0|LogRemoteCommands=1|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|Server=127.0.0.1|Server=192.168.0.50|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|# ListenPort=10050|ListenPort=10050|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|Hostname=Zabbix server|Hostname=centos-srv01|g" /etc/zabbix/zabbix_agentd.conf'
+        centos_srv01.vm.provision 'shell', inline: 'sudo systemctl restart zabbix-agent'
+        centos_srv01.vm.provision 'shell', inline: 'sudo systemctl enable zabbix-agent.service'
         centos_srv01.vm.provision 'shell', inline: 'sudo useradd -p $(openssl passwd -1 awx_pass) awx'
         centos_srv01.vm.provision 'shell', inline: 'sudo usermod -a -G wheel awx'
         centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|#PasswordAuthentication yes|PasswordAuthentication yes|g" /etc/ssh/sshd_config'
         centos_srv01.vm.provision 'shell', inline: 'sudo systemctl restart sshd'
+        centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
+        centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y jq'
 
         centos_srv01.vm.provider 'virtualbox' do |vb|
             vb.memory = 1024

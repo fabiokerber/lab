@@ -1,6 +1,6 @@
 ---
 
-- name: Install Nginx - Starting Deploy
+- name: Nginx - Deploy and Check Status
   hosts: all
   tasks:
         - name: Install epel-release

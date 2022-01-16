@@ -11,6 +11,7 @@ Pré requisito:
 |`Docker`| v20.10.12
 |`Docker-Compose`| v1.29.2
 |`AWX`| v17.1.0
+|`Zabbix`| v5.4
 
 # Zabbix & AWX #
 
@@ -44,16 +45,18 @@ $ watch docker ps
     CENTOS_SRV01 = '192.168.0.150'
     INTERFACE_LAN = 'TP-Link Wireless MU-MIMO USB Adapter'
 
-**- ZABBIX -**
+    centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|Server=127.0.0.1|Server=192.168.0.50|g" /etc/zabbix/zabbix_agentd.conf'
+
+--- ZABBIX ---
 
 > vagrant up zabbix_srv
 
-http://ZABBIX_IP<br>
+http://ZABBIX_IP:8080<br>
     Admin<br>
     zabbix
 
 
-**- AWX -**
+--- AWX ---
 
 > vagrant up awx_srv
 > vagrant ssh awx_srv -c 'cat /tmp/awx-17.1.0/installer/inventory | grep admin_password' (anotar!)
@@ -64,8 +67,13 @@ http://ZABBIX_IP<br>
 http://AWX_IP<br>
     admin<br>
     "admin_password"
----
 
+
+--- CENTOS SRV01 ---
+
+> vagrant up centos_srv01
+
+---
 **AWX cli**
 
 > vagrant ssh awx_srv
@@ -82,11 +90,16 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 ---
 ```
 
+**ZABBIX**
+
+. Configurar TimeZone User Settings > Profile
+. Zabbix Server > Remover template Zabbix Agent > Unlink and Clear
+
 **AWX**
 
 . Criar organizacao (Lab)<br>
 . Criar credencial u: awx | p: awx_pass (Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)<br>
-. Criar inventario (Instance Groups: tower - Organization: Lab)<br>
+. Criar inventario (Server Linux - Organization: Lab - Instance Groups: tower)<br>
 . Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)<br>
 . Criar projeto a(Update System - Privilege Escalation: On)<br>
 . Criar projeto b(Install NGINX - Privilege Escalation: On)<br>
