@@ -30,8 +30,8 @@ Pré requisito:
 
 > vagrant up zabbix_srv
 
-http://ZABBIX_IP:8080<br>
-    Admin<br>
+http://ZABBIX_IP:8080
+    Admin
     zabbix
 
 
@@ -43,8 +43,8 @@ http://ZABBIX_IP:8080<br>
 > vagrant ssh awx_srv
     $ curl -X POST -k -H "Content-type: application/json" -d '{"description":"Personal Tower CLI token", "application":null, "scope":"write"}' http://admin:<admin_password>@192.168.0.100/api/v2/users/1/personal_tokens/ | python3 -m json.tool (Get Token)
 
-http://AWX_IP<br>
-    admin<br>
+http://AWX_IP
+    admin
     "admin_password"
 
 
@@ -165,13 +165,16 @@ $ watch docker ps
 ```
 > vagrant ssh awx_srv
     $ tower-cli config
-
+```
+```
 !!! Verificar possibilidade de montar essa pasta em um disco adicional !!!
     zabbix_srv.vm.provision 'shell', inline: 'sudo mkdir /zabbixdb'
 
 $ docker stop $(docker ps -q)
 $ docker container prune
 $ docker exec -it <container name> /bin/bash
+> vagrant ssh zabbix_srv -c 'sudo docker ps'
+> vagrant ssh zabbix_srv -c 'sudo docker-compose -f /vagrant/docker-compose.yml --profile zabbix up -d'
 https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 https://hub.docker.com/r/zabbix/zabbix-agent
 ```
