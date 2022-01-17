@@ -1,10 +1,13 @@
-Pré requisito:
+Pré requisitos:
 
-|Tool    |Link|
+|Tool    |Link\Command|
 |-------------|-----------|
 |`Vagrant`| https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_x86_64.msi
+|`Install Vagrant Env Plugin`| vagrant plugin install vagrant-env
 |`VirtualBox`| https://download.virtualbox.org/virtualbox/6.1.30/VirtualBox-6.1.30-148432-Win.exe
 |`Postman`| https://www.postman.com/downloads/
+
+Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
 
 |Tool    |Version|
 |-------------|-----------|
@@ -185,3 +188,9 @@ $ docker exec -it <container name> /bin/bash
 https://www.youtube.com/watch?v=ScKlF0ICVYA&t=957s
 https://hub.docker.com/r/zabbix/zabbix-agent
 ```
+
+**Docker Hub - Zabbix**
+
+https://hub.docker.com/r/zabbix/zabbix-java-gateway
+https://hub.docker.com/r/zabbix/zabbix-server-mysql
+https://hub.docker.com/r/zabbix/zabbix-web-nginx-mysql
