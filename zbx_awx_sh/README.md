@@ -7,10 +7,8 @@ Pré requisitos:
 |`VirtualBox`| https://download.virtualbox.org/virtualbox/6.1.30/VirtualBox-6.1.30-148432-Win.exe
 |`Postman`| https://www.postman.com/downloads/
 
-Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
-
 |Tool    |Version|
-|-------------|-----------|
+|-------------------------------------|-------------------------------------|
 |`Docker`| v20.10.12
 |`Docker-Compose`| v1.29.2
 |`AWX`| v17.1.0
@@ -25,13 +23,16 @@ Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
 # Vagrant #
 ```
 !!! Edit Vagrantfile !!!
-    ## SETAR IP'S
-    ZABBIX_IP = '192.168.0.50'
-    AWX_IP = '192.168.0.100'
-    CENTOS_SRV01 = '192.168.0.150'
-    INTERFACE_LAN = 'TP-Link Wireless MU-MIMO USB Adapter'
-
     centos_srv01.vm.provision 'shell', inline: 'sudo sed -i "s|Server=127.0.0.1|Server=192.168.0.50|g" /etc/zabbix/zabbix_agentd.conf'
+
+!!! Edit .env !!!
+    TAG='5.2' (tag zabbix)
+    ZABBIX_IP='192.168.0.50'
+    AWX_IP='192.168.0.100'
+    CENTOS_SRV01='192.168.0.150'
+    INTERFACE_LAN='TP-Link Wireless MU-MIMO USB Adapter'
+
+    Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
 
 
 --- ZABBIX ---
