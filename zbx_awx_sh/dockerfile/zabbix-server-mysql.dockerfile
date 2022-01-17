@@ -1,4 +1,5 @@
 FROM zabbix/zabbix-server-mysql:alpine-5.2-latest
+USER root
 ENV DB_SERVER_HOST=mysql-server
 ENV MYSQL_DATABASE=zabbixdb
 ENV MYSQL_USER=zabbix
