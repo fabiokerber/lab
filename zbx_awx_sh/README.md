@@ -79,11 +79,27 @@ curl -H "Content-Type: application/json" -X POST -s -u admin:ei4meiZo -k http://
 Obs: Atentar senha admin e endereço template.
 ```
 <kbd>
-    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221929.jpg">
 </kbd>
 <br />
 <kbd>
-    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221930.jpg">
+</kbd>
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221931.jpg">
+</kbd>
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221932.jpg">
+</kbd>
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221933.jpg">
+</kbd>
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/170120221141.jpg">
 </kbd>
 <br />
 <br />
