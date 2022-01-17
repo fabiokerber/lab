@@ -1,32 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>5.4</version>
-    <date>2022-01-17T12:10:13Z</date>
+    <version>5.2</version>
+    <date>2022-01-17T14:44:20Z</date>
     <groups>
         <group>
-            <uuid>dc579cd7a1a34222933f24f52a68bcd8</uuid>
-            <name>Linux servers</name>
+            <name>Templates/Operating systems</name>
         </group>
     </groups>
     <templates>
         <template>
-            <uuid>e4e149878fb74f00b2512218a983e2eb</uuid>
             <template>Services Monitoring</template>
             <name>Services Monitoring</name>
             <groups>
                 <group>
-                    <name>Linux servers</name>
+                    <name>Templates/Operating systems</name>
                 </group>
             </groups>
+            <applications>
+                <application>
+                    <name>Services</name>
+                </application>
+            </applications>
             <items>
                 <item>
-                    <uuid>10d0b2ad9f17423c94dfc16a717721b6</uuid>
                     <name>Status Nginx</name>
                     <key>system.run[&quot;systemctl status nginx | grep -q running ; echo $?&quot;]</key>
+                    <applications>
+                        <application>
+                            <name>Services</name>
+                        </application>
+                    </applications>
                     <triggers>
                         <trigger>
-                            <uuid>91f511ce7a2a4c279e892358cba372cb</uuid>
-                            <expression>last(/Services Monitoring/system.run[&quot;systemctl status nginx | grep -q running ; echo $?&quot;])=1</expression>
+                            <expression>{last()}=1</expression>
                             <name>Nginx is Down</name>
                             <priority>HIGH</priority>
                         </trigger>

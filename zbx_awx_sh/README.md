@@ -12,7 +12,7 @@ Pré requisitos:
 |`Docker`| v20.10.12
 |`Docker-Compose`| v1.29.2
 |`AWX`| v17.1.0
-|`Zabbix`| v5.4
+|`Zabbix`| v5.2.7
 
 |VM|Requirement|
 |-------------|-----------|
@@ -70,6 +70,23 @@ http://AWX_IP
 . Zabbix Server > Remover template Zabbix Agent > Unlink and Clear<br>
 . Importar zbx_templates<br>
 . Aplicar novos templates aos hosts<br>
+. Criar host group > Servers Nginx<br>
+
+**Configurar Action.**
+```
+curl -H "Content-Type: application/json" -X POST -s -u admin:ei4meiZo -k http://192.168.0.100/api/v2/job_templates/13/launch/ | jq '.url'
+
+Obs: Atentar senha admin e endereço template.
+```
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
+</kbd>
+<br />
+<kbd>
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/150120221604.jpg">
+</kbd>
+<br />
+<br />
 
 # AWX #
 
@@ -77,10 +94,11 @@ http://AWX_IP
 . Criar credencial u: awx | p: awx_pass **(Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)**<br>
 . Criar inventario **Server Linux - Organization: Lab - Instance Groups: tower)**<br>
 . Criar host **(192.168.0.150 | centos-srv01 > DNS host AWX_SRV)**<br>
-. Criar projeto a **(Update System - Privilege Escalation: On)**<br>
-. Criar projeto b **(Install NGINX - Privilege Escalation: On)**<br>
-. Criar template a **(Variables: Prompt on launch - Limit: Prompt on launch)**<br>
-. Criar template b **(Variables: Prompt on launch - Limit: Prompt on launch)**<br>
+. Criar projeto **(Update System - Privilege Escalation: On)**<br>
+. Criar projeto **(Install NGINX - Privilege Escalation: On)**<br>
+. Criar projeto **(Restart Services - Privilege Escalation: On)**<br>
+. Criar templates **(Variables: Prompt on launch - Limit: Prompt on launch)**<br>
+
 
 **POSTMAN - GET - Info execução template 9 "Update System".**
 ```
