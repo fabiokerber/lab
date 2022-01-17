@@ -64,22 +64,22 @@ http://AWX_IP
 
 # ZABBIX #
 
-. Configurar TimeZone Administration > General > GUI
-. Configurar TimeZone User Settings > Profile
-. Zabbix Server > Remover template Zabbix Agent > Unlink and Clear
-. Importar zbx_templates 
-. Aplicar novos templates aos hosts
+. Configurar TimeZone Administration > General > GUI<br>
+. Configurar TimeZone User Settings > Profile<br>
+. Zabbix Server > Remover template Zabbix Agent > Unlink and Clear<br>
+. Importar zbx_templates<br>
+. Aplicar novos templates aos hosts<br>
 
 # AWX #
 
-. Criar organizacao (Lab)<br>
-. Criar credencial u: awx | p: awx_pass (Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)<br>
-. Criar inventario (Server Linux - Organization: Lab - Instance Groups: tower)<br>
-. Criar host (192.168.0.150 | centos-srv01 > DNS host AWX_SRV)<br>
-. Criar projeto a(Update System - Privilege Escalation: On)<br>
-. Criar projeto b(Install NGINX - Privilege Escalation: On)<br>
-. Criar template a(Variables: Prompt on launch - Limit: Prompt on launch)
-. Criar template b(Variables: Prompt on launch - Limit: Prompt on launch)<br>
+. Criar organizacao **(Lab)**<br>
+. Criar credencial u: awx | p: awx_pass **(Lab - Machine - Privilege Escalation Method: sudo - Privilege Escalation Password: awx_pass)**<br>
+. Criar inventario **Server Linux - Organization: Lab - Instance Groups: tower)**<br>
+. Criar host **(192.168.0.150 | centos-srv01 > DNS host AWX_SRV)**<br>
+. Criar projeto a **(Update System - Privilege Escalation: On)**<br>
+. Criar projeto b **(Install NGINX - Privilege Escalation: On)**<br>
+. Criar template a **(Variables: Prompt on launch - Limit: Prompt on launch)**<br>
+. Criar template b **(Variables: Prompt on launch - Limit: Prompt on launch)**<br>
 
 **POSTMAN - GET - Info execução template 9 "Update System".**
 ```
