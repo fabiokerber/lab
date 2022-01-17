@@ -18,6 +18,6 @@ Ferramentas utilizadas neste projeto:<br>
 Demonstração de auto remediação após queda do serviço NGINX no host:<br>
 <br />
 
-[![Watch the video](https://i.imgur.com/vKb2F1B.png)](https://youtu.be/vT41HjsrEJU)
+[![Watch the video](https://youtu.be/vT41HjsrEJU)](https://youtu.be/vT41HjsrEJU)
 
 (https://www.youtube.com/watch?v=vT41HjsrEJU)
