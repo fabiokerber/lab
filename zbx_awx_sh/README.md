@@ -33,7 +33,7 @@ Pré requisitos:
     INTERFACE_LAN='TP-Link Wireless MU-MIMO USB Adapter'
 
     Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
-         dockerfile/*.dockerfile = Necessário alterar tag manualmente
+         dockerfile/*.dockerfile = Necessário alterar tag zabbix manualmente
 
 
 --- ZABBIX ---
