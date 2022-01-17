@@ -1,7 +1,7 @@
 # Projeto Self Healing (Auto Remediação) #
 
 <kbd>
-    <img src="https://github.com/fabiokerber/lab/blob/main/images/160120221929.jpg">
+    <img src="https://github.com/fabiokerber/lab/blob/main/images/self_healing.png">
 </kbd>
 
 Demonstração de auto remediação após queda do serviço NGINX no host.<br>
