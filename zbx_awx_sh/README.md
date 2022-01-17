@@ -6,7 +6,7 @@
 <br />
 <br />
 
-Ferramentas utilizadas neste projeto:<br>
+**Ferramentas utilizadas neste projeto:**<br>
 <br />
 . AWX - *v17.1.0*<br>
 . Zabbix - *v5.2.7*<br>
@@ -15,6 +15,7 @@ Ferramentas utilizadas neste projeto:<br>
 . Vagrant - *v2.2.19*<br>
 . VirtualBox - *v6.1.30*<br>
 <br />
-Demonstração de auto remediação após queda do serviço NGINX no host:<br>
+
+**Demonstração de auto remediação após queda do serviço NGINX no host:**<br>
 
 [![Watch the video](https://github.com/fabiokerber/lab/blob/main/images/youtube_image.jpg)](https://www.youtube.com/watch?v=vT41HjsrEJU)
