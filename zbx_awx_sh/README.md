@@ -8,13 +8,13 @@ Pré requisitos:
 |`Postman`| https://www.postman.com/downloads/
 
 |Tool    |Version|
-|-------------------------------------|-------------------------------------|
+|-------------|-----------|
 |`Docker`| v20.10.12
 |`Docker-Compose`| v1.29.2
 |`AWX`| v17.1.0
 |`Zabbix`| v5.4
 
-|VM    |Requirement|
+|VM    |Requirement                         |
 |-------------|-----------|
 |`Zabbix`| 4vCPU 4GB
 |`AWX`| 4vCPU 8GB
