@@ -33,6 +33,7 @@ Pré requisitos:
     INTERFACE_LAN='TP-Link Wireless MU-MIMO USB Adapter'
 
     Obs: .env = Variáveis para docker-compose.yml e Vagrantfile
+         dockerfile/*.dockerfile = Necessário alterar tag manualmente
 
 
 --- ZABBIX ---
@@ -192,6 +193,6 @@ https://hub.docker.com/r/zabbix/zabbix-agent
 
 **Docker Hub - Zabbix**
 
-https://hub.docker.com/r/zabbix/zabbix-java-gateway
-https://hub.docker.com/r/zabbix/zabbix-server-mysql
-https://hub.docker.com/r/zabbix/zabbix-web-nginx-mysql
+https://hub.docker.com/r/zabbix/zabbix-java-gateway<br>
+https://hub.docker.com/r/zabbix/zabbix-server-mysql<br>
+https://hub.docker.com/r/zabbix/zabbix-web-nginx-mysql<br>

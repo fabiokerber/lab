@@ -1,4 +1,4 @@
-FROM zabbix/zabbix-web-nginx-mysql:alpine-5.4-latest
+FROM zabbix/zabbix-web-nginx-mysql:alpine-5.2-latest
 ENV ZBX_SERVER_HOST=zabbix-server-mysql
 ENV DB_SERVER_HOST=mysql-server
 ENV MYSQL_DATABASE=zabbixdb
