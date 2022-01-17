@@ -1,20 +1,20 @@
 Pré requisitos:
 
-|Tool    |Link\Command|
+|Tool|Link\Command|
 |-------------|-----------|
 |`Vagrant`| https://releases.hashicorp.com/vagrant/2.2.19/vagrant_2.2.19_x86_64.msi
 |`Install Vagrant Env Plugin`| vagrant plugin install vagrant-env
 |`VirtualBox`| https://download.virtualbox.org/virtualbox/6.1.30/VirtualBox-6.1.30-148432-Win.exe
 |`Postman`| https://www.postman.com/downloads/
 
-|Tool    |Version|
+|Tool|Version|
 |-------------|-----------|
 |`Docker`| v20.10.12
 |`Docker-Compose`| v1.29.2
 |`AWX`| v17.1.0
 |`Zabbix`| v5.4
 
-|VM    |Requirement                         |
+|VM|Requirement|
 |-------------|-----------|
 |`Zabbix`| 4vCPU 4GB
 |`AWX`| 4vCPU 8GB
