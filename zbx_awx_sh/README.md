@@ -16,6 +16,5 @@ Ferramentas utilizadas neste projeto:<br>
 . VirtualBox - v6.1.30<br>
 <br />
 Demonstração de auto remediação após queda do serviço NGINX no host:<br>
-<br />
 
 [![Watch the video](https://github.com/fabiokerber/lab/blob/main/images/youtube_image.jpg)](https://www.youtube.com/watch?v=vT41HjsrEJU)
