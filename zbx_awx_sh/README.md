@@ -5,7 +5,7 @@
 <br />
 <br />
 
-## Ferramentas utilizadas neste projeto:<br>
+## Arquitetura do projeto:<br>
 <kbd>
     <img src="https://github.com/fabiokerber/lab/blob/main/zbx_awx_sh/draw/images/draw.png">
 </kbd>
