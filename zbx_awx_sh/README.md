@@ -18,8 +18,7 @@
 <br />
 
 <kbd>
-    <img src="https://github.com/fabiokerber/lab/blob/main/zbx_awx_sh/draw/images/draw.png
-">
+    <img src="https://github.com/fabiokerber/lab/blob/main/zbx_awx_sh/draw/images/draw.png">
 </kbd>
 <br />
 <br />
