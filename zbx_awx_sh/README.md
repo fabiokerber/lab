@@ -21,4 +21,4 @@ Self healing is better than depending on humans for several reasons:<br>
 <br />
 
 ## Demo<br>
-[![Watch the video](https://github.com/fabiokerber/lab/blob/main/images/youtube_image.jpg)](https://www.youtube.com/watch?v=vT41HjsrEJU)
+[![Watch the video](https://github.com/fabiokerber/lab/blob/main/images/youtube_image.jpg)](https://www.youtube.com/watch?v=MFPBuaThhV8)
