@@ -110,7 +110,7 @@ Vagrant.configure('2') do |config|
         centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
         centos_srv01.vm.provision 'shell', inline: 'sudo yum install -y jq'
         centos_srv01.vm.provision 'shell', inline: 'sudo cp /vagrant/files/visudo.sh /tmp/'
-        centos_srv01.vm.provision 'shell', inline: 'sudo sh /tmp/visudo.sh '
+        centos_srv01.vm.provision 'shell', inline: 'sudo sh /tmp/visudo.sh'
 
         centos_srv01.vm.provider 'virtualbox' do |vb|
             vb.memory = 1024
