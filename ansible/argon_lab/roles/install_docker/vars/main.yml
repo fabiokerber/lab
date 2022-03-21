@@ -1,8 +1,0 @@
----
-
-common_packages_docker:
-   - yum-utils
-   - device-mapper-persistent-data
-   - lvm2
-
-...
